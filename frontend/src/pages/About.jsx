@@ -116,22 +116,32 @@ export default function AboutPage() {
               Faculty <span className="text-[#CBFF00]">Mentors</span>
             </h2>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              { name: 'Prof. Harsh Kumar Verma', role: 'Faculty Mentor', msg: 'Guiding students to think critically about cybersecurity and encouraging research-driven exploration.' },
-              { name: 'Dr. Samayveer Singh', role: 'Faculty Mentor', msg: 'Focused on building strong technical foundations and promoting responsible use of security tools.' },
-              { name: 'Dr. K P Sharma', role: 'Faculty Mentor', msg: 'Motivating students to innovate in secure system design with discipline and academic rigor.' },
-              { name: 'Dr. Urvashi Bansal', role: 'Faculty Mentor', msg: 'Encouraging collaborative learning and a research-oriented mindset in cybersecurity domains.' },
-            ].map(({ name, role, msg }) => (
-              <div key={name} className="card-dark p-6 flex gap-4 items-start">
-                <div className="w-12 h-12 rounded-full bg-[#CBFF00] flex items-center justify-center text-[#111] flex-shrink-0">
-                  <LuUser size={20} />
+              { name: 'Prof. Harsh Kumar Verma', role: 'Faculty Mentor', msg: 'Guiding students to think critically about cybersecurity and encouraging research-driven exploration.', initials: 'HV' },
+              { name: 'Dr. Samayveer Singh', role: 'Faculty Mentor', msg: 'Focused on building strong technical foundations and promoting responsible use of security tools.', initials: 'SS' },
+              { name: 'Dr. K P Sharma', role: 'Faculty Mentor', msg: 'Motivating students to innovate in secure system design with discipline and academic rigor.', initials: 'KS' },
+              { name: 'Dr. Urvashi Bansal', role: 'Faculty Mentor', msg: 'Encouraging collaborative learning and a research-oriented mindset in cybersecurity domains.', initials: 'UB' },
+            ].map(({ name, role, msg, initials }) => (
+              <div key={name} className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-3xl p-7 text-center hover:border-[#CBFF00]/30 transition-all duration-300 group">
+                {/* Avatar */}
+                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#CBFF00] to-[#a8d900] flex items-center justify-center mx-auto mb-5 shadow-lg shadow-[#CBFF00]/10 group-hover:shadow-[#CBFF00]/25 transition-shadow">
+                  <span className="text-[#111] font-black text-lg font-display">{initials}</span>
                 </div>
-                <div>
-                  <h4 className="text-white font-bold font-display">{name}</h4>
-                  <p className="text-[#CBFF00] text-xs font-mono mb-2">{role}</p>
-                  <p className="text-[#666] text-sm leading-relaxed">"{msg}"</p>
-                </div>
+
+                {/* Name */}
+                <h4 className="text-white font-bold font-display text-lg leading-tight mb-2">{name}</h4>
+
+                {/* Role Badge */}
+                <span className="inline-block bg-[#CBFF00]/10 text-[#CBFF00] text-[10px] font-mono font-bold px-3 py-1 rounded-full tracking-wider uppercase mb-5">
+                  {role}
+                </span>
+
+                {/* Divider */}
+                <div className="w-8 h-[2px] bg-[#2a2a2a] mx-auto mb-5 group-hover:bg-[#CBFF00]/30 group-hover:w-12 transition-all" />
+
+                {/* Quote */}
+                <p className="text-[#777] text-sm leading-relaxed italic">"{msg}"</p>
               </div>
             ))}
           </div>
