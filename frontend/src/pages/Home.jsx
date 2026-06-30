@@ -113,7 +113,7 @@ export default function Home() {
 
         {/* Big title */}
         <div className="absolute top-24 left-0 right-0 px-6 md:px-10 z-10 pt-8 flex justify-center">
-          <h1 className="hero-text text-[22vw] md:text-[20vw] leading-none text-[#111] select-none pointer-events-none text-center" style={{ fontFamily: "'Inter', sans-serif" }}>
+          <h1 className="hero-text text-[18vw] md:text-[16vw] leading-none text-[#111] select-none pointer-events-none text-center" style={{ fontFamily: "'Inter', sans-serif" }}>
             CSC NITJ<span className="text-[#CBFF00]">.</span>
           </h1>
         </div>
