@@ -1,1 +1,273 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap');
+
 @import "tailwindcss";
+
+@theme {
+  --color-lime: #CBFF00;
+  --color-lime-dark: #a8d900;
+  --color-dark: #111111;
+  --color-darker: #0a0a0a;
+  --color-card: #1a1a1a;
+  --color-card-border: #2a2a2a;
+  --color-surface: #f5f5f5;
+  --font-sans: 'Inter', sans-serif;
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-mono: 'Fira Code', monospace;
+}
+
+@layer base {
+  :root {
+    --font-sans: 'Inter', sans-serif;
+    --font-display: 'Space Grotesk', sans-serif;
+    --font-mono: 'Fira Code', monospace;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: #ffffff;
+    color: #111111;
+    overflow-x: hidden;
+    border-radius: 20px;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-display);
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f0f0f0;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #CBFF00;
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8d900;
+}
+
+/* ─── LIME GLOW BUTTON ─────────────────────────── */
+.btn-lime {
+  position: relative;
+  overflow: hidden;
+  border-radius: 999px;
+  border: none;
+  background: #CBFF00;
+  color: #111111;
+  font-family: var(--font-sans);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(203, 255, 0, 0.3);
+}
+
+.btn-lime:hover {
+  background: #d8ff33;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 30px rgba(203, 255, 0, 0.45);
+}
+
+.btn-lime:active {
+  transform: translateY(0);
+}
+
+/* ─── OUTLINE BUTTON ───────────────────────────── */
+.btn-outline {
+  border-radius: 999px;
+  border: 1.5px solid rgba(17, 17, 17, 0.15);
+  background: transparent;
+  color: #111111;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  transition: all 0.25s ease;
+  cursor: pointer;
+}
+
+.btn-outline:hover {
+  border-color: rgba(17, 17, 17, 0.4);
+  background: rgba(17, 17, 17, 0.04);
+}
+
+/* Dark variant */
+.btn-outline-dark {
+  border-radius: 999px;
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  background: transparent;
+  color: #ffffff;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  transition: all 0.25s ease;
+  cursor: pointer;
+}
+
+.btn-outline-dark:hover {
+  border-color: #CBFF00;
+  color: #CBFF00;
+}
+
+/* ─── DARK FEATURE CARD ────────────────────────── */
+.card-dark {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 24px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card-dark:hover {
+  border-color: #CBFF00;
+  transform: translateY(-4px);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(203, 255, 0, 0.1);
+}
+
+/* ─── LIGHT CARD ───────────────────────────────── */
+.card-light {
+  background: #ffffff;
+  border: 1px solid #e8e8e8;
+  border-radius: 24px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.06);
+}
+
+.card-light:hover {
+  border-color: #CBFF00;
+  transform: translateY(-4px);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+}
+
+/* ─── LIME HIGHLIGHT TEXT ──────────────────────── */
+.lime-highlight {
+  background: #CBFF00;
+  color: #111111;
+  padding: 0 0.2em;
+  border-radius: 6px;
+}
+
+/* ─── PILL BADGE ───────────────────────────────── */
+.pill-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid #e0e0e0;
+  background: #f5f5f5;
+  font-size: 11px;
+  font-weight: 600;
+  color: #555;
+  letter-spacing: 0.05em;
+}
+
+.pill-badge-dark {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid #2a2a2a;
+  background: #1a1a1a;
+  font-size: 11px;
+  font-weight: 600;
+  color: #888;
+  letter-spacing: 0.05em;
+}
+
+/* ─── DOTTED DIVIDER ───────────────────────────── */
+.dot-divider {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.dot-divider span {
+  width: 3px;
+  height: 3px;
+  background: #ccc;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+/* ─── ICON CIRCLE ──────────────────────────────── */
+.icon-circle {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #2a2a2a;
+  border: 1px solid #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #CBFF00;
+  font-size: 18px;
+}
+
+/* ─── SECTION LABEL ────────────────────────────── */
+.section-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #888;
+}
+
+/* ─── HERO BIG TEXT ────────────────────────────── */
+.hero-text {
+  font-family: var(--font-display);
+  font-weight: 900;
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+}
+
+/* ─── GLOW BLOB ────────────────────────────────── */
+.glow-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+}
+
+/* ─── SUBTLE GRID BG ───────────────────────────── */
+.grid-bg {
+  background-image:
+    linear-gradient(to right, rgba(0, 0, 0, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* ─── DARK SECTION GRID ────────────────────────── */
+.dark-grid-bg {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* ─── COUNTER STAT ─────────────────────────────── */
+.stat-number {
+  font-family: var(--font-display);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+/* ─── NAV PILL ─────────────────────────────────── */
+.nav-pill {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 999px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+}

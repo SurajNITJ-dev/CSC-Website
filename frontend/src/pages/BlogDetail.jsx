@@ -1,33 +1,23 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import { LuArrowLeft, LuHeart, LuMessageSquare, LuUser, LuFileText, LuTrash2, LuArrowRight } from "react-icons/lu";
 
 export default function BlogDetail() {
   const { slug } = useParams();
-
   const [blog, setBlog] = useState(null);
   const [loading, setLoading] = useState(true);
   const [progress, setProgress] = useState(0);
-
   const [commentText, setCommentText] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
 
   const token = localStorage.getItem("token");
   const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
-  // 🔒 normalize ONLY image
-  const normalizeImage = (image) =>
-    image ? `${API_BASE}${image}` : "";
-
-  // Fetch blog (FULL populated data)
   const fetchBlog = async () => {
     try {
       const res = await fetch(`${API_BASE}/api/blogs/${slug}`);
       const data = await res.json();
-
-      setBlog({
-        ...data,
-        image: normalizeImage(data.image),
-      });
+      setBlog({ ...data, image: data.image ? `${API_BASE}${data.image}` : "" });
     } catch (err) {
       console.error("Failed to fetch blog");
     } finally {
@@ -35,50 +25,27 @@ export default function BlogDetail() {
     }
   };
 
-  useEffect(() => {
-    fetchBlog();
-  }, [slug]);
+  useEffect(() => { fetchBlog(); }, [slug]);
 
-  // Reading progress
   useEffect(() => {
     const handleScroll = () => {
-      const scrolled =
-        (window.scrollY /
-          (document.documentElement.scrollHeight - window.innerHeight)) *
-        100;
+      const scrolled = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
       setProgress(scrolled);
     };
-
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Like / Unlike (PRESERVE author + comments)
   const handleLike = async () => {
-    if (!token) {
-      alert("Please login to like this blog");
-      return;
-    }
-
+    if (!token) return alert("Please login to like this blog");
     try {
       setActionLoading(true);
-
-      const res = await fetch(
-        `${API_BASE}/api/blogs/${slug}/like`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
+      const res = await fetch(`${API_BASE}/api/blogs/${slug}/like`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      });
       const updated = await res.json();
-
-      setBlog((prev) => ({
-        ...prev,
-        likes: updated.likes, // ✅ only likes update
-      }));
+      setBlog((prev) => ({ ...prev, likes: updated.likes }));
     } catch (err) {
       console.error("Like failed");
     } finally {
@@ -86,29 +53,19 @@ export default function BlogDetail() {
     }
   };
 
-  // Add comment (REFETCH for correctness)
   const handleComment = async (e) => {
     e.preventDefault();
     if (!token) return alert("Please login to comment");
     if (!commentText.trim()) return;
-
     try {
       setActionLoading(true);
-
-      await fetch(
-        `${API_BASE}/api/blogs/${slug}/comment`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ text: commentText }),
-        }
-      );
-
+      await fetch(`${API_BASE}/api/blogs/${slug}/comment`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ text: commentText }),
+      });
       setCommentText("");
-      fetchBlog(); // ✅ ensures populated comments
+      fetchBlog();
     } catch (err) {
       console.error("Comment failed");
     } finally {
@@ -116,24 +73,15 @@ export default function BlogDetail() {
     }
   };
 
-  // Delete comment (REFETCH for correctness)
   const handleDeleteComment = async (commentId) => {
     if (!token) return;
-
     try {
       setActionLoading(true);
-
-      await fetch(
-        `${API_BASE}/api/blogs/${slug}/comment/${commentId}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      fetchBlog(); // ✅ ensures populated comments
+      await fetch(`${API_BASE}/api/blogs/${slug}/comment/${commentId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      fetchBlog();
     } catch (err) {
       alert(err.message);
     } finally {
@@ -141,198 +89,185 @@ export default function BlogDetail() {
     }
   };
 
-  // Loading
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#020617] text-slate-400">
-        Loading blog...
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="text-center">
+          <div className="w-10 h-10 rounded-full border-2 border-[#CBFF00] border-t-transparent animate-spin mx-auto mb-4" />
+          <p className="text-[#888] text-sm font-mono">Loading article...</p>
+        </div>
       </div>
     );
   }
 
   if (!blog) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#020617] text-white">
-        Blog not found
+      <div className="min-h-screen flex items-center justify-center bg-white text-center">
+        <div>
+          <div className="w-16 h-16 rounded-full bg-[#f0f0f0] flex items-center justify-center mx-auto mb-4">
+                <LuFileText size={28} className="text-[#bbb]" />
+              </div>
+          <h2 className="font-display font-black text-3xl text-[#111] mb-2">Article not found</h2>
+          <Link to="/blog" className="text-[#CBFF00] bg-[#111] px-5 py-2 rounded-full text-sm font-bold hover:bg-[#222] transition inline-flex items-center gap-2 mt-4">
+            <LuArrowLeft size={14} /> Back to Blog
+          </Link>
+        </div>
       </div>
     );
   }
 
-  // Decode user ID
   let userId = null;
   if (token) {
-    try {
-      userId = JSON.parse(atob(token.split(".")[1])).id;
-    } catch {}
+    try { userId = JSON.parse(atob(token.split(".")[1])).id; } catch {}
   }
-
-  const isLiked =
-    userId && blog.likes?.some((id) => id.toString() === userId);
+  const isLiked = userId && blog.likes?.some((id) => id.toString() === userId);
 
   return (
-    <div className="bg-[#020617] text-slate-200 min-h-screen relative">
-      {/* Top reading progress bar */}
-      <div className="fixed top-0 left-0 w-full h-[3px] z-[100]">
+    <div className="bg-white text-[#111] min-h-screen font-sans">
+      {/* Reading progress bar */}
+      <div className="fixed top-0 left-0 w-full h-[3px] z-[100] bg-gray-100">
         <div
-          className="h-full bg-cyan-400 shadow-[0_0_10px_#22d3ee]"
+          className="h-full bg-[#CBFF00] transition-all duration-150 ease-out"
           style={{ width: `${progress}%` }}
         />
       </div>
 
-      {/* Blog header */}
-      <section className="pt-32 md:pt-40 pb-12 px-6 border-b border-slate-800">
-        <div className="max-w-4xl mx-auto">
+      {/* Hero / Header */}
+      <section className="pt-36 pb-12 px-6 md:px-10 border-b border-gray-100 grid-bg">
+        <div className="max-w-3xl mx-auto">
           <Link
             to="/blog"
-            className="text-cyan-400 text-xs uppercase tracking-widest"
+            className="inline-flex items-center gap-2 text-[#888] hover:text-[#111] text-xs font-bold uppercase tracking-wider font-mono transition mb-8"
           >
-            ← Back to Blog
+            <LuArrowLeft size={14} /> Back to Blog
           </Link>
 
-          <h1 className="mt-6 text-3xl md:text-6xl font-black text-white">
+          {/* Tags */}
+          {blog.tags?.length > 0 && (
+            <div className="flex gap-2 flex-wrap mb-5">
+              {blog.tags.map((tag) => (
+                <span key={tag} className="pill-badge">{tag}</span>
+              ))}
+            </div>
+          )}
+
+          <h1 className="font-display font-black text-4xl md:text-6xl text-[#111] leading-tight mb-8">
             {blog.title}
           </h1>
 
-          <div className="flex flex-wrap items-center gap-6 mt-6 text-sm text-slate-400">
-            <span className="text-white font-semibold">
-              {blog.author?.name || "Unknown"}
-            </span>
-
-            <span>{new Date(blog.createdAt).toDateString()}</span>
-
+          {/* Author + date */}
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 rounded-full bg-[#CBFF00] flex items-center justify-center text-[#111] font-black text-sm flex-shrink-0">
+              {blog.author?.name?.[0]?.toUpperCase() || "U"}
+            </div>
+            <div>
+              <p className="text-sm font-bold text-[#111]">{blog.author?.name || "Anonymous"}</p>
+              <p className="text-xs text-[#aaa] font-mono">
+                {new Date(blog.createdAt).toLocaleDateString("en-IN", { day: "2-digit", month: "long", year: "numeric" })}
+              </p>
+            </div>
+            {/* Like button */}
             <button
               onClick={handleLike}
               disabled={actionLoading}
-              className={`flex items-center gap-2 transition
-                ${isLiked ? "text-red-400" : "text-cyan-400"}
-                ${actionLoading ? "opacity-50" : ""}
-              `}
+              className={`ml-auto flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-bold transition cursor-pointer ${
+                isLiked
+                  ? "bg-red-50 border-red-200 text-red-500"
+                  : "border-gray-200 text-[#888] hover:border-red-200 hover:text-red-500"
+              }`}
             >
-              {isLiked ? "♥" : "♡"} {blog.likes?.length || 0}
+              <LuHeart size={14} fill={isLiked ? 'currentColor' : 'none'} /> {blog.likes?.length || 0}
             </button>
           </div>
         </div>
       </section>
 
       {/* Cover image */}
-      {blog.image && (
-        <section className="py-12 px-6">
-          <div className="max-w-5xl mx-auto">
-            <img
-              src={blog.image}
-              alt={blog.title}
-              className="w-full max-h-[520px] object-cover rounded-2xl border border-cyan-500/20"
-            />
+      {blog.coverImage?.url && (
+        <div className="max-w-3xl mx-auto px-6 md:px-0 mt-10">
+          <div className="w-full aspect-video rounded-3xl overflow-hidden bg-gray-50">
+            <img src={blog.coverImage.url} alt={blog.title} className="w-full h-full object-cover" />
           </div>
-        </section>
+        </div>
       )}
 
-      {/* Blog content & author sidebar */}
-      <main className="max-w-6xl mx-auto px-6 py-16 grid grid-cols-1 lg:grid-cols-12 gap-16">
-        <aside className="lg:col-span-3 hidden lg:block sticky top-40">
-          <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6">
-            <div className="w-12 h-12 bg-cyan-500 rounded-full flex items-center justify-center text-black font-black mb-4">
-              {blog.author?.name?.[0] || "U"}
-            </div>
-            <h4 className="text-white font-bold">
-              {blog.author?.name || "Unknown"}
-            </h4>
-            <p className="text-xs text-slate-400 mt-2">
-              CSC NITJ Contributor
-            </p>
-          </div>
-        </aside>
-
-        <article
-          className="
-            lg:col-span-9
-            prose prose-invert prose-cyan max-w-none
-            prose-h1:text-white
-            prose-h2:text-white
-            prose-h3:text-white
-            prose-ul:list-disc
-            prose-ol:list-decimal
-            prose-li:marker:text-cyan-400
-            prose-code:bg-slate-900
-            prose-code:text-cyan-300
-            prose-code:px-1
-            prose-code:py-0.5
-            prose-code:rounded
-            prose-pre:bg-slate-900
-            prose-pre:border
-            prose-pre:border-slate-800
-            [&_iframe]:w-full
-            [&_iframe]:aspect-video
-            [&_iframe]:rounded-xl
-            [&_iframe]:border
-            [&_iframe]:border-slate-800
-          "
+      {/* Body */}
+      <article className="max-w-3xl mx-auto px-6 md:px-0 py-16">
+        <div
+          className="prose prose-lg max-w-none text-[#333] leading-relaxed
+            prose-h1:font-display prose-h1:font-black prose-h1:text-[#111]
+            prose-h2:font-display prose-h2:font-black prose-h2:text-[#111]
+            prose-h3:font-display prose-h3:font-bold prose-h3:text-[#111]
+            prose-a:text-[#CBFF00] prose-a:font-bold prose-a:no-underline hover:prose-a:underline
+            prose-code:font-mono prose-code:bg-gray-100 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm
+            prose-pre:bg-[#111] prose-pre:text-white prose-pre:rounded-2xl
+            prose-blockquote:border-l-4 prose-blockquote:border-[#CBFF00] prose-blockquote:bg-[#CBFF00]/5 prose-blockquote:px-6 prose-blockquote:py-4 prose-blockquote:rounded-r-xl prose-blockquote:not-italic"
           dangerouslySetInnerHTML={{ __html: blog.content }}
         />
-      </main>
+      </article>
 
-      {/* Comments section */}
-      <section className="max-w-4xl mx-auto px-6 pb-24">
-        <h3 className="text-xl font-black text-white mb-8">
-          Comments ({blog.comments?.length || 0})
-        </h3>
+      {/* Comments Section */}
+      <div className="max-w-3xl mx-auto px-6 md:px-0 pb-24">
+        <div className="border-t border-gray-100 pt-12">
+          <h3 className="font-display font-black text-2xl text-[#111] mb-8">
+            <LuMessageSquare size={20} className="inline mr-2 text-[#aaa]" />
+            Comments <span className="text-[#aaa] font-medium text-lg">({blog.comments?.length || 0})</span>
+          </h3>
 
-        <form onSubmit={handleComment} className="mb-10">
-          <textarea
-            rows="3"
-            value={commentText}
-            onChange={(e) => setCommentText(e.target.value)}
-            placeholder={
-              token ? "Write your comment..." : "Login to write a comment"
-            }
-            disabled={!token}
-            className="w-full p-4 rounded-lg bg-slate-900 border border-slate-700"
-          />
-          <button
-            type="submit"
-            disabled={!token || actionLoading}
-            className="mt-3 px-6 py-2 rounded-lg bg-cyan-500 text-black text-xs font-black uppercase"
-          >
-            Post Comment
-          </button>
-        </form>
+          {/* Comment form */}
+          <form onSubmit={handleComment} className="mb-10">
+            <textarea
+              value={commentText}
+              onChange={(e) => setCommentText(e.target.value)}
+              placeholder={token ? "Share your thoughts..." : "Login to leave a comment"}
+              rows={3}
+              disabled={!token}
+              className="w-full px-5 py-4 rounded-2xl border border-gray-200 text-sm text-[#111] placeholder-[#bbb] focus:outline-none focus:border-[#CBFF00] focus:ring-2 focus:ring-[#CBFF00]/20 transition resize-none bg-[#f8f8f8] disabled:opacity-50"
+            />
+            <div className="flex justify-end mt-3">
+              <button
+                type="submit"
+                disabled={actionLoading || !token}
+                className="btn-lime px-6 py-2.5 text-sm font-bold disabled:opacity-50 flex items-center gap-1.5"
+            >
+              Post Comment <LuArrowRight size={14} />
+            </button>
+            </div>
+          </form>
 
-        <div className="space-y-6">
-          {blog.comments?.map((c) => {
-            const canDelete =
-              userId &&
-              (c.user?._id === userId || blog.author?._id === userId);
-
-            return (
-              <div
-                key={c._id}
-                className="bg-slate-900/60 border border-slate-800 rounded-xl p-5"
-              >
-                <div className="flex justify-between mb-2">
-                  <p className="text-white font-semibold text-sm">
-                    {c.user?.name || "CSC Member"}
-                  </p>
-
-                  {canDelete && (
-                    <button
-                      onClick={() => handleDeleteComment(c._id)}
-                      className="text-red-400 text-xs"
-                    >
-                      Delete
-                    </button>
-                  )}
+          {/* Comment list */}
+          <div className="space-y-5">
+            {blog.comments?.length === 0 ? (
+              <p className="text-[#888] text-sm text-center py-8">No comments yet. Be the first!</p>
+            ) : (
+              blog.comments?.map((comment) => (
+                <div key={comment._id} className="card-light p-5 flex gap-4 items-start">
+                  <div className="w-9 h-9 rounded-full bg-[#CBFF00] flex items-center justify-center text-[#111] font-black text-sm flex-shrink-0">
+                    <LuUser size={16} />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between mb-1">
+                      <p className="text-sm font-bold text-[#111]">{comment.user?.name || "Anonymous"}</p>
+                      <p className="text-xs text-[#bbb] font-mono">
+                        {new Date(comment.createdAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}
+                      </p>
+                    </div>
+                    <p className="text-[#555] text-sm leading-relaxed">{comment.text}</p>
+                    {(userId === comment.user?._id || userId === comment.user?.toString()) && (
+                      <button
+                        onClick={() => handleDeleteComment(comment._id)}
+                        className="flex items-center gap-1 text-xs text-red-400 hover:text-red-600 mt-2 transition cursor-pointer"
+                      >
+                        <LuTrash2 size={12} /> Delete
+                      </button>
+                    )}
+                  </div>
                 </div>
-
-                <p className="text-slate-300 text-sm">{c.text}</p>
-              </div>
-            );
-          })}
+              ))
+            )}
+          </div>
         </div>
-      </section>
-
-      <footer className="text-center py-12 text-xs text-slate-500 uppercase tracking-widest">
-        Awareness is the first line of cyber defense • CSC NITJ
-      </footer>
+      </div>
     </div>
   );
 }

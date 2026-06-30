@@ -2,164 +2,115 @@ import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
   const navigate = useNavigate();
-
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   const handleRegister = async (e) => {
     e.preventDefault();
     setError("");
 
-    // basic frontend checks
-    if (name.trim().length < 2) {
-      setError("Name must be at least 2 characters");
-      return;
-    }
-
-    if (!email.trim().endsWith("@nitj.ac.in")) {
-      setError("Email must end with @nitj.ac.in");
-      return;
-    }
-
-    if (password.length < 4) {
-      setError("Password must be at least 4 characters");
-      return;
-    }
+    if (name.trim().length < 2) { setError("Name must be at least 2 characters"); return; }
+    if (!email.trim().endsWith("@nitj.ac.in")) { setError("Email must end with @nitj.ac.in"); return; }
+    if (password.length < 4) { setError("Password must be at least 4 characters"); return; }
 
     try {
       setLoading(true);
-
-      await axios.post(`${API_BASE_URL}/api/auth/register`, {
-        name,
-        email,
-        password,
-      });
-
-      // registration successful → login page
+      await axios.post(`${API_BASE_URL}/api/auth/register`, { name, email, password });
       navigate("/login");
     } catch (err) {
-      setError(
-        err.response?.data?.message || "Registration failed"
-      );
+      setError(err.response?.data?.message || "Registration failed. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#00050a] px-4">
-      <div className="relative w-full max-w-md">
+    <div className="min-h-screen bg-[#f8f8f8] grid-bg flex items-center justify-center px-4">
+      <div className="w-full max-w-md">
 
-        {/* glow */}
-        <div
-          className="absolute -inset-1 rounded-2xl 
-                     bg-gradient-to-r from-cyan-500/40 to-blue-500/40 
-                     blur-lg opacity-40"
-        />
+        {/* Logo */}
+        <div className="text-center mb-8">
+          <Link to="/" className="inline-block font-display font-black text-2xl text-[#111] tracking-tight">
+            CSCNITJ<span className="text-[#CBFF00] bg-[#111] px-1 rounded text-sm">.</span>
+          </Link>
+        </div>
 
-        <form
-          onSubmit={handleRegister}
-          className="relative bg-[#0a0f1d] border border-cyan-500/30 
-                     p-10 rounded-2xl 
-                     shadow-[0_0_60px_rgba(0,209,255,0.15)]"
-        >
-          {/* heading */}
-          <h1 className="text-3xl font-black italic uppercase tracking-tight text-center text-white">
-            Terminal <span className="text-cyan-400">Register</span>
-          </h1>
-          <p className="text-gray-500 text-[10px] font-bold tracking-[0.35em] uppercase text-center mt-2 mb-10">
-            New User Initialization
-          </p>
+        <div className="card-light p-8 md:p-10">
+          <div className="mb-8">
+            <h1 className="font-display font-black text-3xl text-[#111] mb-2">Create your account</h1>
+            <p className="text-[#888] text-sm">
+              Join CSC NITJ — use your <span className="font-bold text-[#111]">@nitj.ac.in</span> email
+            </p>
+          </div>
 
-          {/* name */}
-          <input
-            type="text"
-            placeholder="Full Name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="w-full bg-black/50 border border-white/10 rounded-lg p-4 mb-4
-                       text-white text-xs font-mono
-                       focus:border-cyan-500/60 outline-none transition-all"
-            required
-          />
-
-          {/* email */}
-          <input
-            type="email"
-            placeholder="student@nitj.ac.in"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full bg-black/50 border border-white/10 rounded-lg p-4 mb-4
-                       text-white text-xs font-mono
-                       focus:border-cyan-500/60 outline-none transition-all"
-            required
-          />
-
-          {/* password */}
-          <input
-            type="password"
-            placeholder="••••••••"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full bg-black/50 border border-white/10 rounded-lg p-4 mb-4
-                       text-white text-xs font-mono
-                       focus:border-cyan-500/60 outline-none transition-all"
-            required
-          />
-
-          {/* error */}
           {error && (
-            <div
-              className="text-red-500 text-[9px] font-bold tracking-widest uppercase
-                         bg-red-500/5 p-2 border-l-2 border-red-500 mb-4"
-            >
-              ⚠️ {error}
+            <div className="mb-6 px-4 py-3 rounded-xl bg-red-50 border border-red-100 text-red-600 text-sm font-medium">
+              {error}
             </div>
           )}
 
-          {/* submit */}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-cyan-500 text-black font-black py-4 rounded-lg
-                       text-xs tracking-[0.25em] uppercase
-                       hover:bg-cyan-400 transition-all
-                       shadow-[0_0_25px_rgba(34,211,238,0.3)]
-                       disabled:opacity-60"
-          >
-            {loading ? "Creating..." : "Create Account"}
-          </button>
+          <form onSubmit={handleRegister} className="space-y-5">
+            <div>
+              <label className="block text-xs font-bold text-[#555] mb-2 uppercase tracking-wider">Full Name</label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                placeholder="Your full name"
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm text-[#111] placeholder-[#bbb] focus:outline-none focus:border-[#CBFF00] focus:ring-2 focus:ring-[#CBFF00]/20 transition bg-white"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-[#555] mb-2 uppercase tracking-wider">Institute Email</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                placeholder="rollno@nitj.ac.in"
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm text-[#111] placeholder-[#bbb] focus:outline-none focus:border-[#CBFF00] focus:ring-2 focus:ring-[#CBFF00]/20 transition bg-white"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-[#555] mb-2 uppercase tracking-wider">Password</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                placeholder="Min 4 characters"
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm text-[#111] placeholder-[#bbb] focus:outline-none focus:border-[#CBFF00] focus:ring-2 focus:ring-[#CBFF00]/20 transition bg-white"
+              />
+            </div>
 
-          {/* divider */}
-          <div className="flex items-center gap-4 my-8">
-            <div className="flex-1 h-px bg-white/10" />
-            <span className="text-gray-500 text-[9px] font-bold tracking-[0.3em] uppercase">
-              OR
-            </span>
-            <div className="flex-1 h-px bg-white/10" />
-          </div>
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn-lime w-full py-4 text-sm font-bold mt-2 disabled:opacity-60"
+            >
+              {loading ? "Creating account..." : "Create Account →"}
+            </button>
+          </form>
 
-          {/* login link */}
-          <p className="text-center text-gray-400 text-xs">
-            Already have an account?
+          <p className="text-center text-sm text-[#888] mt-6">
+            Already have an account?{" "}
+            <Link to="/login" className="text-[#111] font-bold hover:underline">
+              Sign in
+            </Link>
           </p>
+        </div>
 
-          <Link
-            to="/login"
-            className="block text-center mt-3 text-cyan-400
-                       text-xs font-black tracking-[0.25em] uppercase
-                       hover:text-cyan-300 transition"
-          >
-            Login Instead
-          </Link>
-        </form>
+        <p className="text-center text-xs text-[#bbb] mt-6 font-mono">
+          // Members only — NITJ institute email required
+        </p>
       </div>
     </div>
   );

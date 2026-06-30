@@ -1,422 +1,137 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+  LuAtSign,
+  LuLock,
+  LuWifi,
+  LuSmartphone,
+  LuShieldAlert,
+  LuEye,
+  LuTriangleAlert,
+  LuArrowRight,
+  LuLightbulb,
+} from "react-icons/lu";
 
-/*
-  Animated neural background.
-  Lives independently on canvas and stays behind UI.
-*/
-const NeuralNetwork = () => {
-  const canvasRef = useRef(null);
+const modules = [
+  { id: "AWR_001", Icon: LuAtSign,    level: "HIGH",     title: "Phishing & Social Engineering", desc: "Recognize deceptive emails, fake websites, and identity theft tactics used by real attackers worldwide.",         tags: ["Email Security", "OSINT", "Human Factor"],      tip: "Always verify sender email domains carefully — attackers use typosquatted domains like 'googIe.com'." },
+  { id: "AWR_002", Icon: LuLock,        level: "MEDIUM",   title: "Password Security & MFA",       desc: "Build uncrackable password strategies, implement multi-factor authentication, and avoid credential stuffing.",    tags: ["Password Managers", "2FA", "Biometrics"],        tip: "A passphrase of 4 random words is stronger than a complex 8-character password." },
+  { id: "AWR_003", Icon: LuWifi,        level: "HIGH",     title: "Safe Browsing & Public WiFi",   desc: "Protect yourself on open networks using VPNs, HTTPS verification, and traffic inspection awareness.",            tags: ["VPN", "DNS Security", "TLS/SSL"],                tip: "Never log into banking or sensitive accounts on public WiFi without a trusted VPN." },
+  { id: "AWR_004", Icon: LuSmartphone,  level: "MEDIUM",   title: "Mobile Device Security",        desc: "Secure your smartphone against malicious apps, rogue permissions, and Bluetooth-based attacks.",                 tags: ["Android", "iOS", "App Permissions"],             tip: "Revoke unnecessary app permissions — most apps request far more access than they need." },
+  { id: "AWR_005", Icon: LuShieldAlert, level: "CRITICAL", title: "Ransomware & Malware Defense",  desc: "Understand how ransomware spreads, backup strategies, and incident response procedures.",                        tags: ["Backup Strategy", "EDR", "Zero Trust"],          tip: "Follow the 3-2-1 backup rule: 3 copies, 2 media types, 1 offsite location." },
+  { id: "AWR_006", Icon: LuEye,         level: "MEDIUM",   title: "Data Privacy & GDPR",           desc: "Know your digital rights, how companies collect your data, and how to minimize your attack surface.",             tags: ["Privacy Laws", "Data Minimization", "GDPR"],    tip: "Use unique email aliases for different services to track and stop data leaks at their source." },
+];
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext("2d");
-    let particles = [];
-    let animationFrameId;
-
-    const resize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      init();
-    };
-
-    class Particle {
-      constructor(x, y) {
-        this.x = x;
-        this.y = y;
-        this.vx = (Math.random() - 0.5) * 0.25;
-        this.vy = (Math.random() - 0.5) * 0.25;
-        this.radius = 2;
-      }
-
-      update() {
-        this.x += this.vx;
-        this.y += this.vy;
-
-        if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
-        if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
-      }
-
-      draw() {
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        ctx.fillStyle = "#22d3ee";
-        ctx.fill();
-      }
-    }
-
-    const init = () => {
-      particles = [];
-      const count = Math.floor(
-        (canvas.width * canvas.height) / 18000
-      );
-
-      for (let i = 0; i < count; i++) {
-        particles.push(
-          new Particle(
-            Math.random() * canvas.width,
-            Math.random() * canvas.height
-          )
-        );
-      }
-    };
-
-    const animate = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.globalCompositeOperation = "lighter";
-
-      for (let i = 0; i < particles.length; i++) {
-        const p1 = particles[i];
-        p1.update();
-
-        ctx.shadowBlur = 15;
-        ctx.shadowColor = "#22d3ee";
-        p1.draw();
-
-        for (let j = i + 1; j < particles.length; j++) {
-          const p2 = particles[j];
-          const dx = p1.x - p2.x;
-          const dy = p1.y - p2.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-
-          if (dist < 220) {
-            ctx.shadowBlur = 0;
-            ctx.beginPath();
-            ctx.strokeStyle = `rgba(34, 211, 238, ${
-              0.7 * (1 - dist / 220)
-            })`;
-            ctx.lineWidth = 1.2;
-            ctx.moveTo(p1.x, p1.y);
-            ctx.lineTo(p2.x, p2.y);
-            ctx.stroke();
-          }
-        }
-      }
-
-      ctx.globalCompositeOperation = "source-over";
-      animationFrameId = requestAnimationFrame(animate);
-    };
-
-    window.addEventListener("resize", resize);
-    resize();
-    animate();
-
-    return () => {
-      window.removeEventListener("resize", resize);
-      cancelAnimationFrame(animationFrameId);
-    };
-  }, []);
-
-  return (
-    <canvas
-      ref={canvasRef}
-      className="fixed inset-0 pointer-events-none"
-      style={{ zIndex: 0 }}
-    />
-  );
+const levelColors = {
+  CRITICAL: "bg-red-100 text-red-700 border border-red-200",
+  HIGH:     "bg-orange-100 text-orange-700 border border-orange-200",
+  MEDIUM:   "bg-yellow-100 text-yellow-700 border border-yellow-200",
 };
 
-/*
-  Awareness landing page.
-  Cycles awareness modules in groups of four.
-*/
-const AwarenessPage = () => {
-  const [visibleIndex, setVisibleIndex] = useState(0);
-  const [isFading, setIsFading] = useState(false);
-  const [mounted, setMounted] = useState(false);
-
+export default function AwarenessPage() {
+  const [expanded, setExpanded] = useState(null);
   const navigate = useNavigate();
 
-  const allModules = [
-    {
-      title: "UPI & Financial Safety",
-      id: "FIN_SEC",
-      icon: "💳",
-      threat: "High - UPI Fraud",
-      content:
-        "Never enter your UPI PIN to receive money. Scammers use 'Request Money' links to drain accounts. Always verify the receiver.",
-    },
-    {
-      title: "Social Engineering",
-      id: "SOC_ENG",
-      icon: "🎭",
-      threat: "Critical - Identity Theft",
-      content:
-        "Be wary of urgent calls asking for OTPs. Official departments will never ask for your passwords or sensitive codes over the phone.",
-    },
-    {
-      title: "Identity Protection",
-      id: "ID_VET",
-      icon: "🆔",
-      threat: "Moderate - Doxing",
-      content:
-        "Avoid sharing photos of ID cards or Aadhaar on social media. Attackers use these details to bypass security questions easily.",
-    },
-    {
-      title: "Network Hygiene",
-      id: "NET_HYG",
-      icon: "📡",
-      threat: "High - Packet Sniffing",
-      content:
-        "Avoid using open public Wi-Fi for banking. Use a VPN or mobile data to prevent device joining 'Evil Twin' malicious hotspots.",
-    },
-    {
-      title: "Phishing Links",
-      id: "PHISH_01",
-      icon: "🔗",
-      threat: "Critical - Credential Theft",
-      content:
-        "Check URLs carefully. Lookalike domains (e.g., n1tj.ac.in) are used to capture LDAP credentials and student portal logins.",
-    },
-    {
-      title: "Juice Jacking",
-      id: "USB_SEC",
-      icon: "🔌",
-      threat: "High - Data Theft",
-      content:
-        "Public USB charging ports can install malware. Use a 'USB Data Blocker' or only use your own power adapter in public areas.",
-    },
-    {
-      title: "App Permissions",
-      id: "APP_PRIV",
-      icon: "📱",
-      threat: "Moderate - Privacy",
-      content:
-        "Review apps requesting camera or contact access without reason. Revoke unnecessary permissions to prevent background data mining.",
-    },
-    {
-      title: "Deepfake Awareness",
-      id: "AI_FAKE",
-      icon: "👤",
-      threat: "High - Impersonation",
-      content:
-        "Scammers use AI to mimic voices of family members. Always verify urgent money requests via a secondary communication channel.",
-    },
-    {
-      title: "Password Strength",
-      id: "PASS_GEN",
-      icon: "🔐",
-      threat: "High - Brute Force",
-      content:
-        "Avoid using birthdates or phone numbers as passwords. Use a mix of symbols and case-sensitive letters for all your campus accounts.",
-    },
-    {
-      title: "QR Code Scams",
-      id: "QR_FRD",
-      icon: "🔳",
-      threat: "Critical - Payment Fraud",
-      content:
-        "Scanning a QR code should only be for sending money. If a merchant asks you to scan to 'receive' a prize, it is a guaranteed scam.",
-    },
-    {
-      title: "Cloud Security",
-      id: "CLD_EXP",
-      icon: "☁️",
-      threat: "Moderate - Data Leak",
-      content:
-        "Ensure your Google Drive folders aren't set to 'Anyone with link'. Keep sensitive lab data and project files restricted.",
-    },
-    {
-      title: "Social Media Mining",
-      id: "SOC_MINE",
-      icon: "🤳",
-      threat: "Moderate - Profiling",
-      content:
-        "Sharing your location in real-time reveals your routine. Post your campus activities after you have left the specific location.",
-    },
-    {
-      title: "Vishing Attacks",
-      id: "VISH_02",
-      icon: "📞",
-      threat: "High - Voice Fraud",
-      content:
-        "Automated robocalls claiming your bank account is blocked are fake. Hang up and call the official bank number on your card.",
-    },
-    {
-      title: "Email Spoofing",
-      id: "EML_SPF",
-      icon: "📧",
-      threat: "High - Malware",
-      content:
-        "Attackers can fake the 'Sender' name. Verify the actual email address before clicking on any 'Urgent' attachment from NITJ staff.",
-    },
-    {
-      title: "Browser Safety",
-      id: "WEB_VET",
-      icon: "🌐",
-      threat: "Moderate - Session Hijack",
-      content:
-        "Always log out from shared library computers. Clear cookies and cache to prevent the next user from accessing your portal.",
-    },
-    {
-      title: "SIM Swapping",
-      id: "SIM_SWP",
-      icon: "📲",
-      threat: "Critical - Account Takeover",
-      content:
-        "If your mobile signal suddenly disappears for hours, contact your provider immediately. Scammers may be cloning your SIM card.",
-    },
-  ];
-
-  const currentModules = [
-    allModules[visibleIndex % allModules.length],
-    allModules[(visibleIndex + 1) % allModules.length],
-    allModules[(visibleIndex + 2) % allModules.length],
-    allModules[(visibleIndex + 3) % allModules.length],
-  ];
-
-  useEffect(() => {
-    window.scrollTo(0, 0);
-    setMounted(true);
-
-    const interval = setInterval(() => {
-      setIsFading(true);
-      setTimeout(() => {
-        setVisibleIndex(
-          (prev) => (prev + 4) % allModules.length
-        );
-        setIsFading(false);
-      }, 500);
-    }, 4000);
-
-    return () => clearInterval(interval);
-  }, [allModules.length]);
-
-  const handleReturn = () => {
-    navigate("/about");
-  };
+  useEffect(() => { window.scrollTo(0, 0); }, []);
 
   return (
-    <div className="bg-[#010714] text-white min-h-screen relative overflow-x-hidden selection:bg-cyan-500/30 font-sans">
-      <NeuralNetwork />
+    <div className="bg-white text-[#111] min-h-screen font-sans">
 
-      {/* Header */}
-      <section className="relative z-10 pt-32 pb-10 px-6 max-w-7xl mx-auto text-center">
-        <div
-          className={`transition-all duration-1000 transform ${
-            mounted
-              ? "opacity-100 translate-y-0"
-              : "opacity-0 translate-y-10"
-          }`}
-        >
-          <div className="inline-block px-4 py-1 border border-red-500/30 bg-red-500/5 rounded mb-6">
-            <span className="text-red-500 font-mono text-[10px] tracking-[0.4em] uppercase animate-pulse">
-              System Alert: Human Vulnerability Detected
-            </span>
-          </div>
-
-          <h1 className="text-5xl md:text-7xl font-black mb-6 tracking-tighter uppercase leading-none">
-            AWARE<span className="text-cyan-400">NESS</span>
+      {/* Hero */}
+      <section className="relative pt-36 pb-20 px-6 md:px-10 grid-bg border-b border-gray-100">
+        <div className="max-w-7xl mx-auto">
+          <p className="section-label mb-4">Security / Awareness</p>
+          <h1 className="font-display font-black text-6xl md:text-8xl text-[#111] leading-none mb-8">
+            Stay <span className="lime-highlight">Secure.</span>
           </h1>
-
-          <p className="text-gray-400 text-sm md:text-base max-w-2xl mx-auto font-light leading-relaxed uppercase tracking-widest">
-            Technological defense is useless without human vigilance.
-            Strengthen your personal firewall against the evolving threat landscape.
+          <p className="text-[#555] text-lg max-w-xl leading-relaxed">
+            Practical digital self-defense guides and cybersecurity awareness modules for everyday users.
           </p>
         </div>
       </section>
 
-      {/* Awareness Modules */}
-      <section className="relative z-10 py-10 px-6 max-w-7xl mx-auto">
-        <div
-          className={`grid grid-cols-1 md:grid-cols-2 gap-8 transition-all duration-700 transform ${
-            isFading
-              ? "opacity-0 scale-95"
-              : "opacity-100 scale-100"
-          }`}
-        >
-          {currentModules.map((mod) => (
-            <div
-              key={mod.id}
-              className="group relative bg-[#0a1628]/40 backdrop-blur-3xl border border-white/5 p-8 rounded-[2.5rem] hover:border-cyan-500/30 transition-all duration-500 hover:-translate-y-3 hover:scale-[1.03] shadow-xl hover:shadow-cyan-500/10"
-            >
-              <div className="flex justify-between items-start mb-6">
-                <div className="text-4xl bg-cyan-500/10 p-4 rounded-2xl group-hover:scale-110 transition-transform duration-500">
-                  {mod.icon}
+      {/* Threat alert banner */}
+      <div className="bg-[#111] px-6 md:px-10 py-4 flex items-center gap-4">
+        <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse flex-shrink-0" />
+        <p className="text-sm text-[#666] font-mono">
+          <span className="text-red-400 font-bold">THREAT_LEVEL: ELEVATED</span> — Phishing campaigns up 45% this quarter
+        </p>
+      </div>
+
+      {/* Module grid */}
+      <section className="py-20 px-6 md:px-10 bg-[#f8f8f8]">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-12">
+            <p className="section-label mb-4">Awareness Modules</p>
+            <h2 className="font-display font-black text-4xl md:text-5xl text-[#111] leading-tight">
+              Digital <span className="lime-highlight">Self-Defense</span>
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {modules.map((mod, i) => {
+              const { Icon } = mod;
+              return (
+                <div
+                  key={mod.id}
+                  className={`card-light p-7 cursor-pointer group transition-all ${expanded === i ? "border-[#CBFF00]" : ""}`}
+                  onClick={() => setExpanded(expanded === i ? null : i)}
+                >
+                  <div className="flex items-start justify-between mb-5">
+                    <div className="w-12 h-12 rounded-2xl bg-[#CBFF00]/15 flex items-center justify-center">
+                      <Icon size={22} className="text-[#6b7700]" />
+                    </div>
+                    <span className={`flex items-center gap-1.5 text-[9px] font-black px-2.5 py-1 rounded-full tracking-wider ${levelColors[mod.level]}`}>
+                      <LuTriangleAlert size={9} />
+                      {mod.level}
+                    </span>
+                  </div>
+
+                  <p className="text-xs font-mono text-[#aaa] mb-2">{mod.id}</p>
+                  <h3 className="font-display font-black text-xl text-[#111] mb-3 leading-tight">{mod.title}</h3>
+                  <div className="flex gap-1 mb-3">
+                    {[...Array(8)].map((_, j) => <span key={j} className="w-1.5 h-1.5 rounded-full bg-[#e0e0e0]" />)}
+                  </div>
+                  <p className="text-[#666] text-sm leading-relaxed mb-5">{mod.desc}</p>
+
+                  <div className="flex gap-2 flex-wrap mb-5">
+                    {mod.tags.map((tag) => <span key={tag} className="pill-badge">{tag}</span>)}
+                  </div>
+
+                  {/* Tip expand */}
+                  {expanded === i && (
+                    <div className="bg-[#CBFF00]/10 border border-[#CBFF00]/30 rounded-xl p-4 mt-2">
+                      <div className="flex items-center gap-2 mb-2">
+                        <LuLightbulb size={14} className="text-[#6b7700]" />
+                        <p className="text-xs font-bold text-[#6b7700]">PRO TIP</p>
+                      </div>
+                      <p className="text-sm text-[#444] leading-relaxed">{mod.tip}</p>
+                    </div>
+                  )}
+
+                  <div className="mt-4 flex items-center gap-2 text-xs font-bold text-[#aaa] group-hover:text-[#111] transition-colors">
+                    <div className="w-5 h-[1.5px] bg-current transition-all group-hover:w-8" />
+                    {expanded === i ? "Hide Tip" : "Show Tip"}
+                  </div>
                 </div>
-
-                <span className="text-[10px] font-mono text-red-400 bg-red-400/5 px-3 py-1 rounded-full border border-red-400/20 uppercase tracking-wider">
-                  {mod.threat}
-                </span>
-              </div>
-
-              <h3 className="text-xl font-bold text-white mb-4 uppercase tracking-wider group-hover:text-cyan-400 transition-colors">
-                {mod.title}
-              </h3>
-
-              <p className="text-gray-400 text-sm leading-relaxed font-light mb-6 border-l-2 border-cyan-500/20 pl-4">
-                {mod.content}
-              </p>
-
-              <div className="pt-4 border-t border-white/5 flex justify-between items-center">
-                <span className="text-[9px] font-mono text-gray-500 tracking-[0.3em] uppercase">
-                  {mod.id}
-                </span>
-
-                <div className="flex gap-1">
-                  {[1, 2, 3].map((dot) => (
-                    <div
-                      key={dot}
-                      className="h-1 w-4 bg-cyan-500/20 rounded-full"
-                    />
-                  ))}
-                </div>
-              </div>
-            </div>
-          ))}
+              );
+            })}
+          </div>
         </div>
       </section>
 
-      {/* Alert Ticker */}
-      <div className="relative z-10 w-full bg-red-500/10 border-y border-red-500/20 py-4 my-10 overflow-hidden whitespace-nowrap">
-        <div className="flex animate-[marquee_30s_linear_infinite] gap-12 text-red-500 font-mono text-xs uppercase tracking-[0.2em]">
-          <span>[WARNING: New 'Registration Fee' phishing emails reported]</span>
-          <span>[ALERT: Fake NITJ login portal detected on unauthorized domains]</span>
-          <span>[VIGILANCE: Report any suspicious UPI requests to CSC immediately]</span>
-          <span>[WARNING: New 'Registration Fee' phishing emails reported]</span>
-          <span>[ALERT: Fake NITJ login portal detected on unauthorized domains]</span>
+      {/* CTA */}
+      <section className="bg-[#111] py-16 px-6 md:px-10 dark-grid-bg">
+        <div className="max-w-7xl mx-auto text-center">
+          <h2 className="font-display font-black text-4xl text-white mb-4">Think you're secure?</h2>
+          <p className="text-[#666] mb-8">Take our comprehensive security assessment and find out.</p>
+          <button
+            onClick={() => navigate("/competitions")}
+            className="btn-lime px-8 py-4 text-sm font-bold flex items-center gap-2 mx-auto"
+          >
+            Take the Quiz <LuArrowRight size={16} />
+          </button>
         </div>
-      </div>
-
-      {/* Return Button */}
-      <div className="text-center pt-4 pb-20 relative z-10">
-        <button
-          onClick={handleReturn}
-          className="group relative px-10 py-3.5 bg-[#0a1628]/60 border border-cyan-500/20 rounded-full 
-                     text-cyan-500/60 text-[10px] font-black uppercase tracking-[0.5em] 
-                     hover:text-cyan-300 hover:border-cyan-400/60 hover:shadow-[0_0_35px_rgba(34,211,238,0.2)]
-                     transition-all duration-500 overflow-hidden active:scale-95"
-        >
-          <div className="absolute top-0 left-[-100%] w-full h-full bg-gradient-to-r from-transparent via-cyan-400/20 to-transparent group-hover:animate-[scan_1.5s_infinite]" />
-
-          <span className="relative z-10 flex items-center gap-2.5 justify-center">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500" />
-            </span>
-            Return to Hub
-          </span>
-        </button>
-      </div>
-
-      <style
-        dangerouslySetInnerHTML={{
-          __html: `
-            @keyframes marquee {
-              0% { transform: translateX(0); }
-              100% { transform: translateX(-50%); }
-            }
-            @keyframes scan {
-              from { left: -100%; }
-              to { left: 100%; }
-            }
-          `,
-        }}
-      />
+      </section>
     </div>
   );
-};
-
-export default AwarenessPage;
+}

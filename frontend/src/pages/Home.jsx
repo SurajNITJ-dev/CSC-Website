@@ -1,421 +1,316 @@
-import React, { useState, useEffect, useRef } from 'react';
-import {Link} from "react-router-dom";
-import backgroundImage from '../assets/clublogo.png';
-import VikashImg from '../assets/vikash.png'; 
-import KritikaImg from '../assets/kritika.png';
+import React, { useRef, useEffect, useState } from 'react';
+import { Link } from "react-router-dom";
+import {
+  LuShield,
+  LuZap,
+  LuSearch,
+  LuUsers,
+  LuArrowRight,
+  LuChevronRight,
+} from "react-icons/lu";
 
-// Faculty Imports
-import HarshImg from '../assets/harsh_sir.png';
-import SamayImg from '../assets/samayveer_sir.png';
-import KPImg from '../assets/kp_sir.png';
-import UrvashiImg from '../assets/urvashi_mam.png';
-
-const MagneticButton = ({ children, className, onClick }) => {
-  const buttonRef = useRef(null);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-
-  const handleMouseMove = (e) => {
-    const { clientX, clientY } = e;
-    const { left, top, width, height } = buttonRef.current.getBoundingClientRect();
-    const x = clientX - (left + width / 2);
-    const y = clientY - (top + height / 2);
-    setPosition({ x: x * 0.3, y: y * 0.3 });
-  };
-
-  const handleMouseLeave = () => setPosition({ x: 0, y: 0 });
-
-  return (
-    <button
-      ref={buttonRef}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      onClick={onClick}
-      className={`${className} transition-transform duration-200 ease-out`}
-      style={{ transform: `translate3d(${position.x}px, ${position.y}px, 0)` }}
-    >
-      {children}
-    </button>
-  );
-};
-
-const Home = () => {
-  const [offset, setOffset] = useState({ x: 0, y: 0 });
-  const [scrollProgress, setScrollProgress] = useState(0); 
-  
-  // --- TYPEWRITER STATE ---
-  const [vikashText, setVikashText] = useState("");
-  const [kritikaText, setKritikaText] = useState("");
-  
-  const canvasRef = useRef(null);
-
-  // The messages to type out
-  const vikashFullMsg = "In cybersecurity, the only limit is your curiosity. We built CSC to cultivate a mindset that questions how systems work. Keep exploring, keep breaking things (ethically), and never stop learning.";
-  const kritikaFullMsg = "Technology is powerful, but community is what drives innovation. My vision for CSC is a space where collaboration thrives—where beginners and experts alike come together to secure the digital future.";
-
-  // --- SCROLL PROGRESS ---
-  useEffect(() => {
-    const updateScrollProgress = () => {
-      const currentScroll = window.scrollY;
-      const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
-      if (scrollHeight > 0) {
-        setScrollProgress((currentScroll / scrollHeight) * 100);
-      }
-    };
-    window.addEventListener("scroll", updateScrollProgress);
-    return () => window.removeEventListener("scroll", updateScrollProgress);
-  }, []);
-
-  // --- MOUSE PARALLAX ---
-  const handleMouseMove = (e) => {
-    const x = (window.innerWidth / 2 - e.pageX) / 45;
-    const y = (window.innerHeight / 2 - e.pageY) / 45;
-    setOffset({ x, y });
-  };
-
-  // --- TYPEWRITER ANIMATION LOGIC ---
-  useEffect(() => {
-    let vIndex = 0;
-    let kIndex = 0;
-    const speed = 30; // Typing speed in ms
-
-    const typeTimer = setInterval(() => {
-      // Type Vikash's text
-      if (vIndex <= vikashFullMsg.length) {
-        setVikashText(vikashFullMsg.slice(0, vIndex));
-        vIndex++;
-      }
-      // Type Kritika's text
-      if (kIndex <= kritikaFullMsg.length) {
-        setKritikaText(kritikaFullMsg.slice(0, kIndex));
-        kIndex++;
-      }
-      // Stop when both are done
-      if (vIndex > vikashFullMsg.length && kIndex > kritikaFullMsg.length) {
-        clearInterval(typeTimer);
-      }
-    }, speed);
-
-    return () => clearInterval(typeTimer);
-  }, []);
-
-  // --- BACKGROUND CANVAS ANIMATION ---
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    let animationFrameId;
-
-    const resize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = document.documentElement.scrollHeight;
-    };
-    resize();
-    window.addEventListener('resize', resize);
-    window.addEventListener('scroll', resize);
-
-    const particles = [];
-    const charSet = ['0', '1'];
-
-    class DataBit {
-      constructor() { this.reset(); }
-      reset() {
-        this.centerX = window.innerWidth / 2;
-        this.centerY = window.innerHeight / 2;
-        this.angle = Math.random() * Math.PI * 2;
-        this.velocity = Math.random() * 1.0 + 0.8; 
-        this.value = charSet[Math.floor(Math.random() * charSet.length)];
-        this.fontSize = Math.random() * 5 + 11;
-        this.opacity = 0; 
-        this.maxOpacity = Math.random() * 0.5 + 0.3;
-        this.distance = Math.random() * 50; 
-        this.spawnRadius = 160; 
-      }
-      update(mouseOffset) {
-        this.distance += this.velocity;
-        const baseX = this.centerX + Math.cos(this.angle) * this.distance;
-        const baseY = this.centerY + Math.sin(this.angle) * this.distance;
-        this.x = baseX + (mouseOffset.x * 0.8);
-        this.y = baseY + (mouseOffset.y * 0.8);
-        if (this.distance > this.spawnRadius) {
-          this.opacity = Math.min(this.maxOpacity, this.opacity + 0.02);
-        }
-        if (this.x < -100 || this.x > canvas.width + 100 || this.y < -100 || this.y > canvas.height + 100) {
-          this.reset();
-        }
-      }
-      draw() {
-        if (this.distance > this.spawnRadius) {
-          ctx.font = `bold ${this.fontSize}px monospace`;
-          ctx.fillStyle = `rgba(0, 255, 255, ${this.opacity})`;
-          ctx.fillText(this.value, this.x, this.y);
-        }
-      }
-    }
-
-    for (let i = 0; i < 150; i++) {
-      const p = new DataBit();
-      p.distance = Math.random() * Math.max(window.innerWidth, window.innerHeight);
-      particles.push(p);
-    }
-
-    const animate = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      particles.forEach(p => { p.update(offset); p.draw(); });
-      animationFrameId = requestAnimationFrame(animate);
-    };
-    animate();
-
-    return () => {
-      cancelAnimationFrame(animationFrameId);
-      window.removeEventListener('resize', resize);
-      window.removeEventListener('scroll', resize);
-    };
-  }, [offset]);
-
-  const facultyMentors = [
-  {
-    name: "Prof. Harsh Kumar Verma",
-    role: "Faculty Mentor",
-    img: HarshImg,
-    msg: "Guiding students to think critically about cybersecurity challenges and encouraging ethical research-driven exploration."
-  },
-  {
-    name: "Dr. Samayveer Singh",
-    role: "Faculty Mentor",
-    img: SamayImg,
-    msg: "Focused on building strong technical foundations and promoting responsible use of security tools and practices."
-  },
-  {
-    name: "Dr. K P Sharma",
-    role: "Faculty Mentor",
-    img: KPImg,
-    msg: "Motivating students to innovate in secure system design with discipline, precision, and academic rigor."
-  },
-  {
-    name: "Dr. Urvashi Bansal",
-    role: "Faculty Mentor",
-    img: UrvashiImg,
-    msg: "Encouraging collaborative learning and fostering a research-oriented mindset in cybersecurity domains."
-  }
-];
-
-
-  return (
-    <div className="bg-[#020617] text-white min-h-screen font-sans relative overflow-x-hidden">      
-      <div className="fixed top-0 left-0 w-full h-1 z-[100] bg-white/5 backdrop-blur-sm">
-        <div 
-          className="h-full bg-[#00D1FF] shadow-[0_0_15px_#00D1FF] transition-all duration-150 ease-out"
-          style={{ width: `${scrollProgress}%` }}
+// ── 3D Lime Orb ──────────────────────────────────────────────────
+const BlobOrb = () => (
+  <div className="relative w-full h-full flex items-center justify-center">
+    <div className="relative w-80 h-80 md:w-96 md:h-96">
+      <div
+        className="absolute inset-0 rounded-full border border-gray-400/30 animate-[spin_18s_linear_infinite]"
+        style={{ transform: 'rotateX(70deg) rotateZ(0deg)' }}
+      />
+      <div
+        className="absolute inset-4 rounded-full border border-gray-400/20 animate-[spin_12s_linear_reverse_infinite]"
+        style={{ transform: 'rotateX(70deg) rotateZ(45deg)' }}
+      />
+      <div className="absolute inset-8 rounded-full bg-gradient-to-br from-[#CBFF00] via-[#a8d900] to-[#78a000] shadow-[0_0_80px_rgba(203,255,0,0.4)] animate-[pulse_3s_ease-in-out_infinite]" />
+      <div
+        className="absolute inset-0 rounded-full"
+        style={{
+          background:
+            'conic-gradient(from 0deg, rgba(200,200,200,0.6) 0%, transparent 30%, rgba(180,180,180,0.4) 60%, transparent 80%, rgba(200,200,200,0.6) 100%)',
+          animation: 'spin 8s linear infinite',
+        }}
+      />
+      <div className="absolute inset-16 rounded-full bg-[#CBFF00]/80 blur-xl animate-[pulse_2s_ease-in-out_infinite_0.5s]" />
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div
+          className="w-full h-8 rounded-full border-2 border-gray-400/40"
+          style={{
+            transform: 'rotateX(75deg)',
+            background: 'linear-gradient(90deg, rgba(200,200,200,0.2), rgba(100,100,100,0.1), rgba(200,200,200,0.2))',
+          }}
         />
       </div>
+    </div>
+  </div>
+);
 
-      <style>
-        {`
-          @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;700&display=swap');
-          @keyframes energeticGlitch {
-            0% { text-shadow: 3px 0 #ff00c1, -3px 0 #00fff9; transform: translate(0); }
-            20% { text-shadow: -3px 0 #ff00c1, 3px 0 #00fff9; transform: translate(-2px, 1px); }
-            40% { text-shadow: 3px 0 #00fff9, -3px 0 #ff00c1; transform: translate(2px, -1px); }
-            60% { text-shadow: -3px 0 #ff00c1, 3px 0 #00fff9; transform: translate(-2px, -1px); }
-            80% { text-shadow: 3px 0 #ff00c1, -3px 0 #00fff9; transform: translate(2px, 1px); }
-            100% { text-shadow: 3px 0 #ff00c1, -3px 0 #00fff9; transform: translate(0); }
-          }
-          .glitch-hover:hover { animation: energeticGlitch 0.4s steps(2) infinite; }
-          .cyber-line-container { width: 100%; height: 2px; background: rgba(0, 209, 255, 0.1); position: relative; overflow: hidden; z-index: 20; }
-          .cyber-line-pulse { position: absolute; top: 0; height: 100%; width: 30%; background: linear-gradient(90deg, transparent, rgba(0, 209, 255, 0.8), transparent); filter: drop-shadow(0 0 8px rgba(0, 209, 255, 0.8)); animation: cyberPulse 3s infinite linear; }
-          @keyframes cyberPulse { 0% { left: -30%; } 100% { left: 100%; } }
-          .cyber-grid { position: absolute; width: 200%; height: 200%; top: -50%; left: -50%; background-image: linear-gradient(to right, rgba(0, 209, 255, 0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(0, 209, 255, 0.05) 1px, transparent 1px); background-size: 60px 60px; transform: perspective(1000px) rotateX(60deg); z-index: 0; pointer-events: none; }
-          @keyframes revolve { from { stroke-dashoffset: 1200; } to { stroke-dashoffset: 0; } }
-          @keyframes scan { 0% { top: 0%; opacity: 0; } 50% { opacity: 0.8; } 100% { top: 100%; opacity: 0; } }
-          .hexagon-path { fill: none; stroke: #00ffff; stroke-width: 3; stroke-linecap: round; stroke-dasharray: 200 1000; animation: revolve 9s linear infinite; filter: drop-shadow(0 0 10px #00ffff); }
-          .radar-scan { position: absolute; width: 100%; height: 1px; background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.5), transparent); box-shadow: 0 0 15px #00ffff; animation: scan 6s linear infinite; z-index: 25; pointer-events: none; }
-          .cyber-button-tech { position: relative; overflow: hidden; border-radius: 6px; border: 2px solid #ffffff; background-color: #00D1FF; color: #000000; font-family: 'Space Grotesk', sans-serif; font-weight: 700; transition: 0.3s; z-index: 50; cursor: pointer; }
-          .cyber-button-tech:hover { background-color: #000000 !important; color: #ffffff !important; box-shadow: 0 0 25px rgba(255, 255, 255, 0.3); }
-          @keyframes dataPulse { 0% { left: -100%; opacity: 0; } 50% { opacity: 1; } 100% { left: 100%; opacity: 0; } }
-          .neon-path-container { position: relative; width: 100%; height: 2px; background: rgba(0, 209, 255, 0.1); overflow: hidden; }
-          .neon-pulse { position: absolute; top: 0; height: 100%; width: 20%; background: linear-gradient(90deg, transparent, #00D1FF, transparent); filter: drop-shadow(0 0 8px #00D1FF); animation: dataPulse 3s linear infinite; }
-          .event-card { position: relative; background: rgba(0, 209, 255, 0.03); backdrop-filter: blur(12px); border: 1px solid rgba(0, 209, 255, 0.2); border-radius: 12px; overflow: hidden; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 1; }
-          .event-card::before { content: ""; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: conic-gradient(transparent, rgba(0, 209, 255, 0.3), transparent 30%); animation: rotateGlow 4s linear infinite; z-index: -1; }
-          @keyframes rotateGlow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-          .event-card:hover { transform: translateY(-12px) scale(1.02); background: rgba(0, 209, 255, 0.08); border-color: rgba(0, 209, 255, 0.6); box-shadow: 0 20px 40px -15px rgba(0, 209, 255, 0.4); }
-          
-          .leader-img-container { 
-            position: relative; 
-            width: 160px; 
-            height: 160px; 
-            padding: 4px; 
-            border-radius: 50%; 
-            border: 2px solid rgba(0, 209, 255, 0.5); 
-            background: #020617;
-            box-shadow: 0 0 15px rgba(0, 209, 255, 0.2);
-            transition: all 0.3s ease;
-          }
-          .leader-img-container:hover {
-            border-color: #00D1FF;
-            box-shadow: 0 0 25px rgba(0, 209, 255, 0.4);
-          }
-        `}
-      </style>
+// ── Animated counter ──────────────────────────────────────────────
+const CountUp = ({ target, suffix = "" }) => {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    const steps = 60;
+    const increment = target / steps;
+    let current = 0;
+    const timer = setInterval(() => {
+      current += increment;
+      if (current >= target) { setCount(target); clearInterval(timer); }
+      else setCount(Math.floor(current));
+    }, 25);
+    return () => clearInterval(timer);
+  }, [target]);
+  return <span>{count}{suffix}</span>;
+};
 
-      <canvas ref={canvasRef} className="fixed inset-0 z-0 pointer-events-none" />
+// ── Feature card ──────────────────────────────────────────────────
+const features = [
+  {
+    Icon: LuShield,
+    title: "CTF Training",
+    desc: "Hands-on Capture The Flag sessions with progressive difficulty and expert mentorship.",
+  },
+  {
+    Icon: LuZap,
+    title: "Live Workshops",
+    desc: "Real-time security workshops on penetration testing, malware analysis, and more.",
+  },
+  {
+    Icon: LuSearch,
+    title: "Threat Research",
+    desc: "A curated library of threat intelligence reports, CVEs, and security advisories.",
+  },
+  {
+    Icon: LuUsers,
+    title: "Community Hub",
+    desc: "Connect with fellow ethical hackers, share writeups, and collaborate on projects.",
+  },
+];
 
-      {/* 1. HERO SECTION */}
-      <section className="relative h-screen w-full flex items-center justify-center px-4 z-10 overflow-hidden">
-        <div className="cyber-grid" style={{ transform: `perspective(1000px) rotateX(60deg) translateY(${offset.y * 5}px)` }} />
-        <div className="relative w-full max-w-[85vh] aspect-square flex items-center justify-center" style={{ transform: `translate3d(${offset.x}px, ${offset.y}px, 0)` }}>
-          <div className="radar-scan" />
-          <img src={backgroundImage} className="absolute inset-0 w-full h-full object-contain opacity-60 z-10 select-none pointer-events-none" style={{ filter: 'brightness(0.7) contrast(1.1)', transform: `scale(1.05) translate(${offset.x * 0.4}px, ${offset.y * 0.4}px)` }} alt="Logo" />
-          <svg viewBox="0 0 500 500" className="absolute inset-0 w-full h-full z-20 pointer-events-none scale-[0.88]">
-            <path className="hexagon-path" d="M250,50 L423,150 L423,350 L250,450 L77,350 L77,150 Z" />
-          </svg>
-          <div className="relative z-30 flex flex-col items-center justify-center text-center">
-            <h1 className="glitch-hover cursor-default text-5xl md:text-7xl font-black italic uppercase leading-none tracking-tighter">
-              <span className="text-white">CSC</span> <span className="text-[#00D1FF]">NITJ</span>
-            </h1>
-            <p className="text-[10px] md:text-sm text-cyan-100 font-bold uppercase tracking-[0.2em] mt-4 opacity-80">Building Cyber Awareness & Ethical Hacking Skills</p>
-            <div className="h-32"></div>
-            <Link to='/about'>
-              <MagneticButton 
-                className="cyber-button-tech px-8 py-3 uppercase text-[11px] tracking-[0.3em]"
-              >
-                Learn More
-              </MagneticButton>
+const FeatureCard = ({ Icon, title, desc, delay = 0 }) => (
+  <div className="card-dark p-7 flex flex-col gap-6" style={{ animationDelay: `${delay}ms` }}>
+    <div className="icon-circle">
+      <Icon size={20} />
+    </div>
+    <div>
+      <h3 className="text-white font-bold text-xl leading-tight mb-2 font-display">{title}</h3>
+      <div className="flex gap-1 mb-3">
+        {[...Array(12)].map((_, i) => (
+          <span key={i} className="w-1.5 h-1.5 rounded-full bg-[#333]" />
+        ))}
+      </div>
+      <p className="text-[#666] text-sm leading-relaxed">{desc}</p>
+    </div>
+  </div>
+);
+
+export default function Home() {
+  return (
+    <div className="bg-white text-[#111] font-sans overflow-x-hidden">
+
+      {/* ── HERO ─────────────────────────────────────── */}
+      <section className="relative min-h-screen overflow-hidden grid-bg">
+        <div className="glow-blob w-[600px] h-[600px] bg-[#CBFF00]/20 top-[-100px] right-[-100px]" />
+        <div className="glow-blob w-[400px] h-[400px] bg-[#CBFF00]/10 bottom-[0px] left-[0px]" />
+
+        {/* Big title */}
+        <div className="absolute top-24 left-0 right-0 px-6 md:px-10 z-10 pt-8 flex justify-center">
+          <h1 className="hero-text text-[22vw] md:text-[20vw] leading-none text-[#111] select-none pointer-events-none text-center" style={{ fontFamily: "'Inter', sans-serif" }}>
+            CSC NITJ<span className="text-[#CBFF00]">.</span>
+          </h1>
+        </div>
+
+        {/* 3D Orb */}
+        <div className="absolute inset-0 flex items-center justify-center z-20 mt-40 md:mt-48">
+          <div className="w-72 h-72 md:w-[420px] md:h-[420px]">
+            <BlobOrb />
+          </div>
+        </div>
+
+        {/* Bottom left */}
+        <div className="absolute bottom-10 left-6 md:left-10 z-30">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="flex -space-x-2">
+              {['#CBFF00', '#a8d900', '#78a000'].map((c, i) => (
+                <div
+                  key={i}
+                  className="w-8 h-8 rounded-full border-2 border-white flex items-center justify-center"
+                  style={{ background: c, zIndex: 3 - i }}
+                >
+                  <LuUsers size={12} className="text-[#111]" />
+                </div>
+              ))}
+            </div>
+            <div>
+              <p className="font-black text-xl font-display"><CountUp target={200} suffix="+" /></p>
+              <p className="text-xs text-[#888]">Active Members</p>
+            </div>
+          </div>
+          <p className="text-[#333] text-sm md:text-base max-w-[220px] leading-relaxed font-medium">
+            Pioneering the future of secure systems and ethical hacking protocols.
+          </p>
+          <div className="flex gap-1 mt-2">
+            {[...Array(20)].map((_, i) => (
+              <span key={i} className="w-1 h-1 rounded-full bg-[#ccc]" />
+            ))}
+          </div>
+        </div>
+
+        {/* Bottom right */}
+        <div className="absolute bottom-10 right-6 md:right-10 z-30 flex flex-col items-end gap-4">
+          <div className="text-right space-y-1">
+            {[['Web based', '/01'], ['Collaborative', '/02'], ['Real-time', '/03']].map(
+              ([label, num]) => (
+                <p key={num} className="text-xs text-[#888]">
+                  <span className="text-[#aaa]">{label}</span>
+                  <span className="text-[#ccc] ml-2 font-mono">{num}</span>
+                </p>
+              )
+            )}
+          </div>
+          <Link to="/about">
+            <div className="w-24 h-24 rounded-full bg-[#CBFF00] flex flex-col items-center justify-center text-center cursor-pointer hover:scale-105 transition-transform shadow-[0_8px_30px_rgba(203,255,0,0.4)]">
+              <LuArrowRight size={18} className="text-[#111] mb-1" />
+              <span className="text-[10px] font-bold leading-tight text-[#111]">How it<br />works?</span>
+            </div>
+          </Link>
+        </div>
+      </section>
+
+      {/* ── DARK FEATURES ────────────────────────────── */}
+      <section className="bg-[#111] py-24 px-6 md:px-10 dark-grid-bg">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-16">
+            <h2 className="text-white font-display font-black text-4xl md:text-6xl leading-tight max-w-2xl">
+              All the must haves of a premier{' '}
+              <span className="lime-highlight">cyber club.</span>
+            </h2>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {features.map(({ Icon, title, desc }, i) => (
+              <FeatureCard key={title} Icon={Icon} title={title} desc={desc} delay={i * 100} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── STATS ─────────────────────────────────────── */}
+      <section className="bg-[#f8f8f8] py-24 px-6 md:px-10 border-y border-gray-100">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            {[
+              { label: 'Members', value: 200, suffix: '+' },
+              { label: 'Events Hosted', value: 30, suffix: '+' },
+              { label: 'CTFs Won', value: 15, suffix: '+' },
+              { label: 'Alumni Network', value: 50, suffix: '+' },
+            ].map(({ label, value, suffix }) => (
+              <div key={label}>
+                <p className="stat-number text-5xl md:text-7xl text-[#111]">
+                  <CountUp target={value} suffix={suffix} />
+                </p>
+                <p className="text-[#888] text-sm mt-2 font-medium">{label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── EVENTS CTA ────────────────────────────────── */}
+      <section className="bg-[#111] py-24 px-6 md:px-10 dark-grid-bg">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-10">
+          <div>
+            <p className="section-label mb-4 text-[#666]">Latest Activity</p>
+            <h2 className="text-white font-display font-black text-4xl md:text-5xl leading-tight max-w-lg">
+              Stay ahead of the <span className="text-[#CBFF00]">threat landscape.</span>
+            </h2>
+          </div>
+          <div className="flex gap-4 flex-wrap">
+            <Link to="/events" className="btn-lime px-8 py-4 text-sm font-bold flex items-center gap-2">
+              View Events <LuArrowRight size={16} />
+            </Link>
+            <Link to="/blog" className="btn-outline-dark px-8 py-4 text-sm font-bold">
+              Read Blog
             </Link>
           </div>
         </div>
       </section>
 
-      <div className="neon-path-container">
-        <div className="neon-pulse" />
-      </div>
-
-      <div className="cyber-line-container">
-        <div className="cyber-line-pulse"></div>
-      </div>
-
-      {/* 2. FACULTY MENTORS SECTION */}
-      <section className="relative z-10 py-32 px-6 bg-black/30">
-  <div className="max-w-6xl mx-auto text-center">
-    <h2 className="glitch-hover text-[#00D1FF] text-5xl md:text-7xl font-black italic uppercase mb-24 tracking-tighter">
-      Faculty Mentors
-    </h2>
-
-    {/* 2 per row */}
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
-
-      {facultyMentors.map((faculty, idx) => (
-        <div key={idx} className="flex flex-col items-center">
-
-          {/* Photo */}
-          <div className="leader-img-container mb-6">
-            <img
-              src={faculty.img}
-              className="w-full h-full object-cover rounded-full"
-              alt={faculty.name}
-            />
-          </div>
-
-          {/* Name + Role */}
-          <h3 className="text-[#00D1FF] text-xl font-bold tracking-wider">
-            {faculty.name}
-          </h3>
-
-          {/* Formal message box */}
-          <div className="mt-6 w-full bg-black/60 p-6 rounded-lg text-left 
-     border border-cyan-400/30
-     shadow-[0_0_15px_rgba(0,209,255,0.25)]
-     transition-all duration-300
-     hover:shadow-[0_0_25px_rgba(0,209,255,0.45)]
-     hover:border-cyan-400/60">
-
-            <p className="text-gray-300 text-sm leading-relaxed font-sans">
-              {faculty.msg}
+      {/* ── ABOUT TEASER ──────────────────────────────── */}
+      <section className="bg-white py-24 px-6 md:px-10 grid-bg">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+          <div>
+            <p className="section-label mb-4">About the Club</p>
+            <h2 className="font-display font-black text-4xl md:text-5xl text-[#111] leading-tight mb-6">
+              Building India's next-gen{' '}
+              <span className="lime-highlight">cyber defenders.</span>
+            </h2>
+            <p className="text-[#555] leading-relaxed text-base max-w-md mb-8">
+              The Cyber Security Club of NIT Jalandhar was founded to create a community of passionate
+              security researchers. We run CTF teams, host workshops, and mentor the next generation
+              of ethical hackers.
             </p>
+            <div className="flex gap-4">
+              <Link to="/about" className="btn-lime px-8 py-3.5 text-sm font-bold flex items-center gap-2">
+                Learn More <LuArrowRight size={16} />
+              </Link>
+              <Link to="/team" className="btn-outline px-8 py-3.5 text-sm font-bold">
+                Meet the Team
+              </Link>
+            </div>
           </div>
 
+          <div className="grid grid-cols-1 gap-4">
+            {[
+              {
+                Icon: LuShield,
+                title: 'Ethical Hacking',
+                desc: 'Learn offensive security techniques in a legal, structured environment.',
+              },
+              {
+                Icon: LuSearch,
+                title: 'Open Source',
+                desc: 'All our research and tools are open source and community-driven.',
+              },
+              {
+                Icon: LuUsers,
+                title: 'Knowledge Sharing',
+                desc: 'Weekly writeups, talks, and reading groups to keep everyone sharp.',
+              },
+            ].map(({ Icon, title, desc }) => (
+              <div key={title} className="card-light p-5 flex gap-4 items-start">
+                <div className="w-10 h-10 rounded-xl bg-[#CBFF00]/20 flex items-center justify-center flex-shrink-0">
+                  <Icon size={18} className="text-[#6b7700]" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-[#111] mb-1 font-display">{title}</h4>
+                  <p className="text-[#777] text-sm leading-relaxed">{desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
-      ))}
-
-    </div>
-  </div>
-</section>
-
-
-
-      <div className="neon-path-container">
-        <div className="neon-pulse" style={{ animationDelay: '1.5s' }} />
-      </div>
-
-      {/* 3. OUR FOUNDERS SECTION */}
-      <section id="team" className="relative z-10 py-24 px-6 bg-black/40">
-  <div className="max-w-6xl mx-auto text-center">
-    <h2 className="glitch-hover text-[#00D1FF] text-5xl md:text-7xl font-black italic uppercase mb-24 tracking-tighter">
-      Our Founders
-    </h2>
-
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
-
-      {/* ===== Vikash ===== */}
-      <div className="flex flex-col items-center">
-        <div className="leader-img-container mb-6">
-          <img
-           src={VikashImg}
-            className="w-full h-full object-cover rounded-full"
-           style={{ objectPosition: '50% 20%' }}
-           alt="Vikash"
-          />                    
-
-        </div>
-
-        <h3 className="text-[#00D1FF] text-2xl font-bold tracking-wider">
-          Vikash Kushwah
-        </h3>
-
-        {/* Vision box */}
-        <div className="mt-6 w-full bg-black/40 p-6 rounded-lg border border-cyan-500/20 font-mono text-left relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-1 bg-cyan-500/30"></div>
-          <p className="text-gray-300 text-sm md:text-base leading-relaxed">
-            <span className="text-[#00D1FF] mr-2 font-bold">{'>'}</span>
-            {vikashText}
-            <span className="animate-pulse bg-[#00D1FF] ml-1 inline-block w-2 h-4 align-middle"></span>
-          </p>
-        </div>
-      </div>
-
-      {/* ===== Kritika ===== */}
-      <div className="flex flex-col items-center">
-        <div className="leader-img-container mb-6">
-          <img
-            src={KritikaImg}
-           className="w-full h-full object-cover rounded-full"
-           style={{ objectPosition: '50% 15%' }}
-           alt="Kritika"
-          />
-
-        </div>
-
-        <h3 className="text-[#00D1FF] text-2xl font-bold tracking-wider">
-          Kritika Joshi
-        </h3>
-
-        {/* Vision box */}
-        <div className="mt-6 w-full bg-black/40 p-6 rounded-lg border border-cyan-500/20 font-mono text-left relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-1 bg-cyan-500/30"></div>
-          <p className="text-gray-300 text-sm md:text-base leading-relaxed">
-            <span className="text-[#00D1FF] mr-2 font-bold">{'>'}</span>
-            {kritikaText}
-            <span className="animate-pulse bg-[#00D1FF] ml-1 inline-block w-2 h-4 align-middle"></span>
-          </p>
-        </div>
-      </div>
-
-    </div>
-  </div>
       </section>
 
-
+      {/* ── FINAL CTA BAND ────────────────────────────── */}
+      <section className="bg-[#CBFF00] py-16 px-6 md:px-10">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+          <h2 className="font-display font-black text-3xl md:text-5xl text-[#111] leading-tight">
+            Ready to level up<br />your security skills?
+          </h2>
+          <div className="flex gap-4">
+            <Link
+              to="/register"
+              className="bg-[#111] text-white px-8 py-4 rounded-full text-sm font-bold hover:bg-[#222] transition flex items-center gap-2"
+            >
+              Join CSC NITJ <LuArrowRight size={16} />
+            </Link>
+            <Link
+              to="/blog"
+              className="bg-white/50 text-[#111] px-8 py-4 rounded-full text-sm font-bold hover:bg-white/80 transition border border-[#111]/10"
+            >
+              Read Blog
+            </Link>
+          </div>
+        </div>
+      </section>
     </div>
   );
-};
-
-export default Home;
+}

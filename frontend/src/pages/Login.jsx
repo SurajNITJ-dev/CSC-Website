@@ -1,131 +1,105 @@
 import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 
-function Login(props) {
-  const navigate = useNavigate();
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+export default function Login({ onLogin }) {
+  const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-const handleLogin = async (e) => {
-  e.preventDefault();
-  setError("");
-  setLoading(true);
+  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
-  try {
-    const res = await fetch(
-      `${import.meta.env.VITE_API_BASE_URL}/api/auth/login`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      }
-    );
-
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || "Login failed");
-
-    // 🔐 ONLY REAL JWT
-    localStorage.clear(); // 💣 kill old garbage
-    localStorage.setItem("token", data.token);
-    localStorage.setItem("role", data.role || "user");
-
-    localStorage.setItem(
-      "user",
-      JSON.stringify({
-        _id: data._id,
-        name: data.name,
-        email: data.email,
-        role: data.role,
-      })
-    );
-
-    navigate(data.role === "admin" ? "/admin" : "/profile");
-  } catch (err) {
-    setError(err.message);
-  } finally {
-    setLoading(false);
-  }
-};
-
-
-
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+    try {
+      const res = await axios.post(`${API_BASE}/api/auth/login`, form);
+      const { token, user } = res.data;
+      localStorage.setItem("token", token);
+      localStorage.setItem("role", user.role);
+      onLogin(user.role);
+      navigate(user.role === "admin" ? "/admin" : "/");
+    } catch (err) {
+      setError(err.response?.data?.message || "Login failed. Check your credentials.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#00050a] px-4">
-      <div className="relative w-full max-w-md">
+    <div className="min-h-screen bg-[#f8f8f8] grid-bg flex items-center justify-center px-4">
+      {/* Center card */}
+      <div className="w-full max-w-md">
+        {/* Logo */}
+        <div className="text-center mb-8">
+          <Link to="/" className="inline-block font-display font-black text-2xl text-[#111] tracking-tight">
+            CSCNITJ<span className="text-[#CBFF00] bg-[#111] px-1 rounded text-sm">.</span>
+          </Link>
+        </div>
 
-        {/* Glow */}
-        <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-cyan-500/40 to-blue-500/40 blur-lg opacity-40"></div>
-
-        <form
-          onSubmit={handleLogin}
-          className="relative bg-[#0a0f1d] border border-cyan-500/30 p-10 rounded-2xl shadow-[0_0_60px_rgba(0,209,255,0.15)]"
-        >
-          <h1 className="text-3xl font-black italic uppercase text-center text-white">
-            Terminal <span className="text-cyan-400">Login</span>
-          </h1>
-
-          <p className="text-gray-500 text-[10px] font-bold tracking-[0.35em] uppercase text-center mt-2 mb-10">
-            Authorization Required
-          </p>
-
-          <input
-            type="email"
-            placeholder="student@nitj.ac.in"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full bg-black/50 border border-white/10 rounded-lg p-4 mb-4 text-white text-xs font-mono focus:border-cyan-500/60 outline-none"
-            required
-          />
-
-          <input
-            type="password"
-            placeholder="••••••••"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full bg-black/50 border border-white/10 rounded-lg p-4 mb-4 text-white text-xs font-mono focus:border-cyan-500/60 outline-none"
-            required
-          />
+        <div className="card-light p-8 md:p-10">
+          <div className="mb-8">
+            <h1 className="font-display font-black text-3xl text-[#111] mb-2">Welcome back</h1>
+            <p className="text-[#888] text-sm">Sign in to your CSC NITJ account</p>
+          </div>
 
           {error && (
-            <div className="text-red-500 text-[9px] font-bold tracking-widest uppercase bg-red-500/5 p-2 border-l-2 border-red-500 mb-4">
-              ⚠️ {error}
+            <div className="mb-6 px-4 py-3 rounded-xl bg-red-50 border border-red-100 text-red-600 text-sm font-medium">
+              {error}
             </div>
           )}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-cyan-500 text-black font-black py-4 rounded-lg text-xs tracking-[0.25em] uppercase hover:bg-cyan-400 transition"
-          >
-            {loading ? "VERIFYING..." : "VERIFY IDENTITY"}
-          </button>
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div>
+              <label className="block text-xs font-bold text-[#555] mb-2 uppercase tracking-wider">Email</label>
+              <input
+                type="email"
+                name="email"
+                value={form.email}
+                onChange={handleChange}
+                required
+                placeholder="you@example.com"
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm text-[#111] placeholder-[#bbb] focus:outline-none focus:border-[#CBFF00] focus:ring-2 focus:ring-[#CBFF00]/20 transition bg-white"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-[#555] mb-2 uppercase tracking-wider">Password</label>
+              <input
+                type="password"
+                name="password"
+                value={form.password}
+                onChange={handleChange}
+                required
+                placeholder="••••••••"
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm text-[#111] placeholder-[#bbb] focus:outline-none focus:border-[#CBFF00] focus:ring-2 focus:ring-[#CBFF00]/20 transition bg-white"
+              />
+            </div>
 
-          <div className="flex items-center gap-4 my-8">
-            <div className="flex-1 h-px bg-white/10"></div>
-            <span className="text-gray-500 text-[9px] font-bold tracking-[0.3em] uppercase">
-              OR
-            </span>
-            <div className="flex-1 h-px bg-white/10"></div>
-          </div>
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn-lime w-full py-4 text-sm font-bold mt-2 disabled:opacity-60"
+            >
+              {loading ? "Signing in..." : "Sign In →"}
+            </button>
+          </form>
 
-          <p className="text-center text-gray-400 text-xs">
-            Don’t have an account?
+          <p className="text-center text-sm text-[#888] mt-6">
+            Don't have an account?{" "}
+            <Link to="/register" className="text-[#111] font-bold hover:underline">
+              Create one
+            </Link>
           </p>
+        </div>
 
-          <Link
-            to="/register"
-            className="block text-center mt-3 text-cyan-400 text-xs font-black tracking-[0.25em] uppercase hover:text-cyan-300 transition"
-          >
-            Create New Account
-          </Link>
-        </form>
+        <p className="text-center text-xs text-[#bbb] mt-6 font-mono">
+          // Secure login powered by CSC NITJ
+        </p>
       </div>
     </div>
   );
 }
-
-export default Login;
