@@ -32,6 +32,12 @@ const Events = () => {
         setEvents(formatted);
       } catch (err) {
         console.error("Fetch Events Error:", err);
+        // Fallback for static demo
+        setEvents([
+          { id: "1", title: "Introduction to Capture The Flag (CTF)", desc: "A beginner-friendly workshop explaining jeopardy-style CTF formats, basic toolsets, and navigation.", date: "15 Jul 2026", mode: "Hybrid", tag: "Workshop" },
+          { id: "2", title: "Campus Vulnerability Assessment", desc: "An offline practical threat intelligence and scanning simulation exercise inside NITJ labs.", date: "22 Aug 2026", mode: "Offline", tag: "Audit" },
+          { id: "3", title: "Global Cyber Defense Hackathon", desc: "Represent CSC NITJ in securing standard container architectures against simulated payloads.", date: "10 Oct 2026", mode: "Online", tag: "Competition" }
+        ]);
       }
     };
     fetchEvents();

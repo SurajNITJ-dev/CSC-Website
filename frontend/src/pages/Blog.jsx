@@ -73,6 +73,12 @@ const Blog = () => {
         setBlogs(arr);
       } catch (err) {
         console.error("Fetch blogs error:", err);
+        // Fallback for static demo
+        setBlogs([
+          { _id: "1", title: "Demystifying OWASP Top 10 in 2026", content: "Understanding current application vulnerabilities like broken access controls and injection threats with code-level remedies.", author: { name: "Vikash Yadav" }, createdAt: new Date().toISOString(), tags: ["Web Security", "OWASP"] },
+          { _id: "2", title: "A Guide to Docker Container Hardening", content: "Learn how to secure container namespaces, restrict privileges, and avoid common configuration errors.", author: { name: "Kritika Aggarwal" }, createdAt: new Date().toISOString(), tags: ["Docker", "DevSecOps"] },
+          { _id: "3", title: "Getting Started with reverse engineering using Ghidra", content: "A walk-through tutorial detailing how to load a simple compiled binary and translate assembly into readable C code.", author: { name: "Jashanpreet Singh" }, createdAt: new Date().toISOString(), tags: ["Reverse Engineering", "Binaries"] }
+        ]);
       } finally {
         setLoading(false);
       }
