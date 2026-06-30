@@ -97,7 +97,7 @@ function App() {
   };
 
   return (
-    <Router>
+    <Router basename="/CSC-Website">
       <AppLayout
         isLoggedIn={isLoggedIn}
         onLogin={handleLogin}
