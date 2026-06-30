@@ -7,7 +7,14 @@ import {
   LuArrowRight,
   LuChevronRight,
   LuUser,
+  LuBadgeCheck,
 } from 'react-icons/lu';
+
+// Faculty mentor images
+import harshSirImg from '../assets/harsh_sir.png';
+import samayveerSirImg from '../assets/samayveer_sir.png';
+import kpSirImg from '../assets/kp_sir.png';
+import urvashiMamImg from '../assets/urvashi_mam.png';
 
 const GoalCard = ({ id, Icon, title, desc, path }) => {
   const navigate = useNavigate();
@@ -108,40 +115,57 @@ export default function AboutPage() {
       </section>
 
       {/* Faculty */}
-      <section className="bg-[#111] py-24 px-6 md:px-10 dark-grid-bg">
+      <section className="bg-[#f5f5f5] py-24 px-6 md:px-10 grid-bg">
         <div className="max-w-7xl mx-auto">
-          <div className="mb-16">
-            <p className="section-label mb-4 text-[#555]">Guidance</p>
-            <h2 className="font-display font-black text-4xl md:text-5xl text-white leading-tight">
-              Faculty <span className="text-[#CBFF00]">Mentors</span>
+          <div className="mb-16 text-center">
+            <p className="section-label mb-4">Guidance</p>
+            <h2 className="font-display font-black text-4xl md:text-5xl text-[#111] leading-tight">
+              Faculty <span className="lime-highlight">Mentors</span>
             </h2>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-7">
             {[
-              { name: 'Prof. Harsh Kumar Verma', role: 'Faculty Mentor', msg: 'Guiding students to think critically about cybersecurity and encouraging research-driven exploration.', initials: 'HV' },
-              { name: 'Dr. Samayveer Singh', role: 'Faculty Mentor', msg: 'Focused on building strong technical foundations and promoting responsible use of security tools.', initials: 'SS' },
-              { name: 'Dr. K P Sharma', role: 'Faculty Mentor', msg: 'Motivating students to innovate in secure system design with discipline and academic rigor.', initials: 'KS' },
-              { name: 'Dr. Urvashi Bansal', role: 'Faculty Mentor', msg: 'Encouraging collaborative learning and a research-oriented mindset in cybersecurity domains.', initials: 'UB' },
-            ].map(({ name, role, msg, initials }) => (
-              <div key={name} className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-3xl p-7 text-center hover:border-[#CBFF00]/30 transition-all duration-300 group">
-                {/* Avatar */}
-                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#CBFF00] to-[#a8d900] flex items-center justify-center mx-auto mb-5 shadow-lg shadow-[#CBFF00]/10 group-hover:shadow-[#CBFF00]/25 transition-shadow">
-                  <span className="text-[#111] font-black text-lg font-display">{initials}</span>
+              { name: 'Prof. Harsh Kumar Verma', role: 'Faculty Mentor', msg: 'Guiding students to think critically about cybersecurity and encouraging research-driven exploration.', img: harshSirImg, dept: 'CSE Department' },
+              { name: 'Dr. Samayveer Singh', role: 'Faculty Mentor', msg: 'Focused on building strong technical foundations and promoting responsible use of security tools.', img: samayveerSirImg, dept: 'CSE Department' },
+              { name: 'Dr. K P Sharma', role: 'Faculty Mentor', msg: 'Motivating students to innovate in secure system design with discipline and academic rigor.', img: kpSirImg, dept: 'CSE Department' },
+              { name: 'Dr. Urvashi Bansal', role: 'Faculty Mentor', msg: 'Encouraging collaborative learning and a research-oriented mindset in cybersecurity domains.', img: urvashiMamImg, dept: 'CSE Department' },
+            ].map(({ name, role, msg, img, dept }) => (
+              <div
+                key={name}
+                className="group bg-white rounded-[28px] overflow-hidden border border-gray-100 shadow-[0_2px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_20px_60px_rgba(0,0,0,0.1)] hover:-translate-y-2 transition-all duration-500 cursor-pointer"
+              >
+                {/* Photo */}
+                <div className="p-4 pb-0">
+                  <div className="relative overflow-hidden rounded-[20px] bg-gradient-to-br from-[#f0f0f0] to-[#e8e8e8] aspect-[4/4.5]">
+                    <img
+                      src={img}
+                      alt={name}
+                      className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700 ease-out"
+                    />
+                  </div>
                 </div>
 
-                {/* Name */}
-                <h4 className="text-white font-bold font-display text-lg leading-tight mb-2">{name}</h4>
+                {/* Info */}
+                <div className="px-5 pt-5 pb-3">
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <h4 className="font-display font-bold text-[#111] text-[17px] leading-tight">{name}</h4>
+                    <LuBadgeCheck size={18} className="text-[#CBFF00] flex-shrink-0" />
+                  </div>
+                  <p className="text-[#999] text-[13px] leading-relaxed mt-1 line-clamp-2">{msg}</p>
+                </div>
 
-                {/* Role Badge */}
-                <span className="inline-block bg-[#CBFF00]/10 text-[#CBFF00] text-[10px] font-mono font-bold px-3 py-1 rounded-full tracking-wider uppercase mb-5">
-                  {role}
-                </span>
-
-                {/* Divider */}
-                <div className="w-8 h-[2px] bg-[#2a2a2a] mx-auto mb-5 group-hover:bg-[#CBFF00]/30 group-hover:w-12 transition-all" />
-
-                {/* Quote */}
-                <p className="text-[#777] text-sm leading-relaxed italic">"{msg}"</p>
+                {/* Bottom bar */}
+                <div className="px-5 pb-5 pt-2 flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-1">
+                      <LuUser size={13} className="text-[#bbb]" />
+                      <span className="text-[#888] text-xs font-semibold">{dept}</span>
+                    </div>
+                  </div>
+                  <span className="inline-flex items-center gap-1 bg-[#f5f5f5] text-[#666] text-[11px] font-bold px-3.5 py-1.5 rounded-full border border-gray-100 group-hover:bg-[#CBFF00] group-hover:text-[#111] group-hover:border-[#CBFF00] transition-all duration-300">
+                    {role}
+                  </span>
+                </div>
               </div>
             ))}
           </div>

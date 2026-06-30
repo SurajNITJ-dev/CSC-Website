@@ -9,6 +9,44 @@ import {
   LuChevronRight,
 } from "react-icons/lu";
 
+import cscLogo from "../assets/CSC_Logo.png";
+
+// ── Binary Particles ──────────────────────────────────────────────
+const BinaryParticles = () => {
+  const [particles, setParticles] = useState([]);
+  useEffect(() => {
+    const newParticles = Array.from({ length: 40 }).map((_, i) => ({
+      id: i,
+      angle: Math.random() * 360,
+      distance: 120 + Math.random() * 150,
+      duration: 3 + Math.random() * 4,
+      delay: Math.random() * 4,
+      value: Math.random() > 0.5 ? '1' : '0',
+      size: 12 + Math.random() * 16,
+    }));
+    setParticles(newParticles);
+  }, []);
+
+  return (
+    <div className="absolute inset-0 pointer-events-none z-10 animate-[pulse_4s_ease-in-out_infinite]">
+      {particles.map(p => (
+        <div
+          key={p.id}
+          className="absolute top-1/2 left-1/2 font-mono font-bold text-[#CBFF00]/60 drop-shadow-[0_0_8px_rgba(203,255,0,0.8)]"
+          style={{
+            fontSize: `${p.size}px`,
+            animation: `binaryFlyOut ${p.duration}s ease-in-out ${p.delay}s infinite`,
+            '--angle': `${p.angle}deg`,
+            '--dist': `${p.distance}px`,
+          }}
+        >
+          {p.value}
+        </div>
+      ))}
+    </div>
+  );
+};
+
 // ── 3D Lime Orb ──────────────────────────────────────────────────
 const BlobOrb = () => (
   <div className="relative w-full h-full flex items-center justify-center">
@@ -31,13 +69,21 @@ const BlobOrb = () => (
         }}
       />
       <div className="absolute inset-16 rounded-full bg-[#CBFF00]/80 blur-xl animate-[pulse_2s_ease-in-out_infinite_0.5s]" />
-      <div className="absolute inset-0 flex items-center justify-center">
+      <div className="absolute inset-0 flex items-center justify-center z-20">
         <div
           className="w-full h-8 rounded-full border-2 border-gray-400/40"
           style={{
             transform: 'rotateX(75deg)',
             background: 'linear-gradient(90deg, rgba(200,200,200,0.2), rgba(100,100,100,0.1), rgba(200,200,200,0.2))',
           }}
+        />
+      </div>
+      <BinaryParticles />
+      <div className="absolute inset-0 flex items-center justify-center z-30 pointer-events-none">
+        <img 
+          src={cscLogo} 
+          alt="CSC Logo" 
+          className="w-48 h-48 md:w-60 md:h-60 object-contain drop-shadow-[0_0_20px_rgba(255,255,255,0.5)] z-30"
         />
       </div>
     </div>

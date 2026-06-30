@@ -9,6 +9,8 @@ import {
   LuX,
 } from "react-icons/lu";
 
+import cscLogo from "../assets/navlogo.png";
+
 const exploreLinks = [
   {
     to: "/education",
@@ -77,9 +79,10 @@ export default function Navbar({ isLoggedIn, onLogout }) {
           {/* Logo */}
           <Link
             to={isAdmin ? "/admin" : "/"}
-            className="text-[#111] font-black text-lg tracking-tight select-none font-display z-[60] cursor-pointer flex-shrink-0"
+            className="text-[#111] font-black text-lg tracking-tight select-none font-display z-[60] cursor-pointer flex-shrink-0 flex items-center gap-2"
           >
-            CSC<span className="text-[#111]">NITJ</span><span className="text-[#CBFF00] bg-[#111] px-1 rounded ml-0.5">.</span>
+            <img src={cscLogo} alt="CSC Logo" className="h-8 w-auto drop-shadow-sm" />
+            <span>CSC<span className="text-[#111]">NITJ</span><span className="text-[#CBFF00] bg-[#111] px-1 rounded ml-0.5">.</span></span>
           </Link>
 
           {/* Desktop Nav Links */}

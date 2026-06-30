@@ -24,7 +24,7 @@ const globalCtfs = [
 ];
 
 const internalEvents = [
-  { id: "INT_001", name: "CSC NITJ CTF 2025",  status: "Upcoming",   date: "Q3 2025",  tags: ["Web", "Forensics", "Misc"],      desc: "Annual internal CTF competition for all NITJ students. Prizes and certificates for top performers." },
+  { id: "INT_001", name: "CSC NITJ CTF 2026",  status: "Upcoming",   date: "Q3 2026",  tags: ["Web", "Forensics", "Misc"],      desc: "Annual internal CTF competition for all NITJ students. Prizes and certificates for top performers." },
   { id: "INT_002", name: "Capture The Campus", status: "Completed",  date: "Jan 2025", tags: ["Physical Security", "OSINT"],    desc: "A unique offline CTF blending physical and digital security challenges across campus." },
   { id: "INT_003", name: "Binary Battle",       status: "Completed",  date: "Oct 2024", tags: ["Binary Exploitation", "Reversing"], desc: "Advanced challenge set focused on reverse engineering and binary exploitation techniques." },
 ];

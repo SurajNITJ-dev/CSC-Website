@@ -271,3 +271,20 @@
   border-radius: 999px;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
 }
+
+@keyframes binaryFlyOut {
+  0% {
+    transform: translate(-50%, -50%) rotate(var(--angle)) translateY(40px) rotate(calc(-1 * var(--angle))) scale(0.5);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.8;
+  }
+  80% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(var(--angle)) translateY(var(--dist)) rotate(calc(-1 * var(--angle))) scale(1.5);
+    opacity: 0;
+  }
+}
